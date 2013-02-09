@@ -1,0 +1,41 @@
+<?php
+$title = 'uživatelé';
+$this->headTitle($title);
+?>
+
+<h2><?php echo $this->escapeHtml($title); ?></h2>
+
+<?php if ($this->isAllowed('user', 'add')): ?>
+<p>
+    <a href="<?php echo $this->url('user', array('action'=>'add'));?>">
+        Přidat nového uživatele
+    </a>
+</p>
+<?php endif; ?>
+
+<table class="table">
+<tr>
+    <th>Jméno</th>
+    <th>Příjmení</th>
+    <th>Email</th>
+    <th>Poslední přihlášení</th>
+    <th>&nbsp;</th>
+</tr>
+<?php foreach($users as $user) : ?>
+
+<tr>
+    <td><?php echo $this->escapeHtml($user->name);?></td>
+    <td><?php echo $this->escapeHtml($user->surname);?></td>
+    <td><?php echo $this->escapeHtml($user->email);?></td>
+    <td><?php echo $this->escapeHtml($user->last_login);?></td>
+    <td>
+        <?php if ($this->isAllowed('user', 'edit')): ?>
+        <a href="<?php echo $this->url('user', array('action'=>'edit', 'id' => $user->id_user));?>">Upravit</a>
+        <?php endif; ?>
+        <?php if ($this->isAllowed('user', 'delete')): ?>
+        <a href="<?php echo $this->url('user', array('action'=>'delete', 'id' => $user->id_user));?>">Smazat</a>
+        <?php endif; ?>
+    </td>
+</tr>
+<?php endforeach; ?>
+</table>

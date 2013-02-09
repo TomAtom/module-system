@@ -1,0 +1,23 @@
+<?php
+
+$title = 'smazat roli';
+$this->headTitle($title);
+?>
+<h2><?php echo $this->escapeHtml($title); ?></h2>
+
+<p>Jste si jisti, že chcete odstranit roli 
+    <?php echo $this->escapeHtml($role->name); ?> 
+</p>
+<?php
+$url = $this->url('role', array(
+    'action' => 'delete',
+    'id'     => $role->id_role,
+));
+?>
+<form action="<?php echo $url; ?>" method="post">
+<div>
+    <input type="hidden" name="id" value="<?php echo (int) $role->id_role; ?>" />
+    <input type="submit" name="del[yes]" value="Ano" />
+    <input type="submit" name="del[no]" value="Ne" />
+</div>
+</form>

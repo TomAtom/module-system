@@ -1,0 +1,24 @@
+<?php
+
+$title = 'upravit roli';
+$this->headTitle($title);
+?>
+<h2><?php echo $this->escapeHtml($title); ?></h2>
+
+<?php
+$form = $this->form;
+$form->setAttribute('action', $this->url(
+    'role',
+    array(
+        'action' => 'edit',
+        'id'     => $this->id,
+    )
+));
+$form->prepare();
+
+echo $this->form()->openTag($form);
+echo $this->formHidden($form->get('id_role'));
+echo $this->formRow($form->get('name'));
+echo $this->formSubmit($form->get('submit'));
+echo $this->formSubmit($form->get('return'));
+echo $this->form()->closeTag();

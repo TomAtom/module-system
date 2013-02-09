@@ -1,0 +1,24 @@
+<?php
+
+$title = 'smazat uživatele';
+$this->headTitle($title);
+?>
+<h2><?php echo $this->escapeHtml($title); ?></h2>
+
+<p>Jste si jisti, že chcete odstranit uživatele 
+    <?php echo $this->escapeHtml($user->name); ?> 
+    <?php echo $this->escapeHtml($user->surname); ?>?
+</p>
+<?php
+$url = $this->url('user', array(
+    'action' => 'delete',
+    'id'     => $user->id_user,
+));
+?>
+<form action="<?php echo $url; ?>" method="post">
+<div>
+    <input type="hidden" name="id" value="<?php echo (int) $user->id_user; ?>" />
+    <input type="submit" name="del[yes]" value="Ano" />
+    <input type="submit" name="del[no]" value="Ne" />
+</div>
+</form>

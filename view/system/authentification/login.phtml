@@ -1,0 +1,20 @@
+<?php
+$title = 'přihlášení';
+$this->headTitle($title);
+echo '<h2>'.$this->escapeHtml($title).'</h2>';
+
+
+$form = $this->form;
+
+$form->setAttribute('action', $this->url('authentification', array('action' => 'login')));
+
+$form->prepare();
+
+echo $this->form()->openTag($form);
+echo $this->formRow($form->get('email'));
+echo $this->formRow($form->get('password'));
+echo '<div class="form_controls">';
+echo $this->formSubmit($form->get('submit'));
+echo '</div>';
+echo $this->formHidden($form->get('csrf'));
+echo $this->form()->closeTag();
