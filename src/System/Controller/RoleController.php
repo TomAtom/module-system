@@ -43,7 +43,7 @@ class RoleController extends AbstractActionController {
                     $this->getRoleTable()->saveRole($role);
                     $this->flashMessenger()->addMessage(array('message' => 'Role přidána'));
                     return $this->redirect()->toRoute('role');
-                } catch (\Application\Exception\AlreadyExistsException $e) {
+                } catch (\System\Exception\AlreadyExistsException $e) {
                     $this->flashMessenger() ->addMessage(array('warning' => 'Role s názvem "'.$role->name.'" již existuje'));
                     return $this->redirect()->toRoute('role', array(
                         'action' => 'add'
@@ -81,7 +81,7 @@ class RoleController extends AbstractActionController {
                     $this->getRoleTable()->saveRole($form->getData());
                     $this->flashMessenger()->addMessage(array('message' => 'Role uložena'));
                     return $this->redirect()->toRoute('role');
-                } catch (\Application\Exception\AlreadyExistsException $e) {
+                } catch (\System\Exception\AlreadyExistsException $e) {
                     $this->flashMessenger() ->addMessage(array('warning' => 'Role s názvem "'.$role->name.'" již existuje'));
                     return $this->redirect()->toRoute('role', array(
                         'action' => 'edit',

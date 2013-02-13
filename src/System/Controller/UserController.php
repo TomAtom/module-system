@@ -46,7 +46,7 @@ class UserController extends AbstractActionController {
                     $user->save();
                     $this->flashMessenger()->addMessage(array('message' => 'Uživatel přidán'));
                     return $this->redirect()->toRoute('user');
-                } catch (\Application\Exception\AlreadyExistsException $e) {
+                } catch (\System\Exception\AlreadyExistsException $e) {
                    $this->flashMessenger()->addMessage(array('warning' => 'Uživatel s emailem "'.$user->email.'" již existuje'));
                    return $this->redirect()->toRoute('user', array(
                        'action' => 'add'
@@ -94,7 +94,7 @@ class UserController extends AbstractActionController {
                     }
                     $this->flashMessenger()->addMessage(array('message' => 'Uživatel uložen'));
                     return $this->redirect()->toRoute('user');
-                } catch (\Application\Exception\AlreadyExistsException $e) {
+                } catch (\System\Exception\AlreadyExistsException $e) {
                     $this->flashMessenger()->addMessage(array('warning' => 'Uživatel s emailem "'.$user->email.'" již existuje'));
                     return $this->redirect()->toRoute('user', array(
                         'action' => 'edit',
@@ -169,7 +169,7 @@ class UserController extends AbstractActionController {
                     }
                     $this->flashMessenger()->addMessage(array('message' => 'Uloženo'));
                     return $this->redirect()->toRoute('user', array('action' => 'profile'));
-                } catch (\Application\Exception\AlreadyExistsException $e) {
+                } catch (\System\Exception\AlreadyExistsException $e) {
                     $this->flashMessenger()->addMessage(array('warning' => 'Uživatel s emailem "'.$user->email.'" již existuje'));
                     return $this->redirect()->toRoute('user', array(
                         'action' => 'profile',

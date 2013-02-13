@@ -45,7 +45,7 @@ class RoleTable extends AbstractTableGateway
     {
         $roleByName = $this->getRoleByName($role->name);
         if (is_object($roleByName) && $roleByName->id_role != $role->id_role) {
-            throw new \Application\Exception\AlreadyExistsException();
+            throw new \System\Exception\AlreadyExistsException();
         }
         $data = array(
             'name' => $role->name,

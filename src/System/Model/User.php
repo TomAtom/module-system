@@ -45,7 +45,7 @@ class User extends \Zend\Db\RowGateway\RowGateway implements InputFilterAwareInt
     public function save() {
         $userByEmail = $this->userTable->getUserByEmail($this->email);
         if (is_object($userByEmail) && $userByEmail->id_user != $this->id_user) {
-            throw new \Application\Exception\AlreadyExistsException();
+            throw new \System\Exception\AlreadyExistsException();
         }
         parent::save();
     }
