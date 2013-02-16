@@ -10,10 +10,10 @@ use Zend\InputFilter\InputFilterInterface;
 class User extends \Zend\Db\RowGateway\RowGateway implements InputFilterAwareInterface
 {
     protected $inputFilter;
-    protected $userTable;
+    protected $serviceLocator;
     
-    public function __construct($primaryKeyColumn, $table, $adapterOrSql, $userTable) {
-        $this->userTable = $userTable;
+    public function __construct($primaryKeyColumn, $table, $adapterOrSql, $serviceLocator) {
+        $this->serviceLocator = $serviceLocator;
         parent::__construct($primaryKeyColumn, $table, $adapterOrSql);
     }
     
@@ -43,7 +43,7 @@ class User extends \Zend\Db\RowGateway\RowGateway implements InputFilterAwareInt
     }
     
     public function save() {
-        $userByEmail = $this->userTable->getUserByEmail($this->email);
+        $userByEmail = $this->serviceLocator->get('System\Model\UserTable')->getUserByEmail($this->email);
         if (is_object($userByEmail) && $userByEmail->id_user != $this->id_user) {
             throw new \System\Exception\AlreadyExistsException();
         }

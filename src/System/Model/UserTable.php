@@ -2,29 +2,24 @@
 
 namespace System\Model;
 
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\TableGateway\AbstractTableGateway;
+use Zend\Db\TableGateway\TableGateway;
 
-class UserTable extends AbstractTableGateway {
+class UserTable {
 
-    protected $table = 'system_users';
+    protected $gateway;
 
-    public function __construct(Adapter $adapter) {
-        $this->adapter = $adapter;
-        $this->resultSetPrototype = new ResultSet();
-        $this->resultSetPrototype->setArrayObjectPrototype(new User('id_user', $this->table, $adapter, $this));
-        $this->initialize();
+    public function __construct(TableGateway $gateway) {
+        $this->gateway = $gateway;
     }
 
     public function fetchAll() {
-        $resultSet = $this->select();
+        $resultSet = $this->gateway->select();
         return $resultSet;
     }
 
     public function getUser($id) {
         $id = (int) $id;
-        $rowset = $this->select(array('id_user' => $id));
+        $rowset = $this->gateway->select(array('id_user' => $id));
         $row = $rowset->current();
         if (!$row) {
             throw new \Exception("Could not find row $id");
@@ -33,11 +28,7 @@ class UserTable extends AbstractTableGateway {
     }
 
     public function getUserByEmail($email) {
-        $rowset = $this->select(array('email' => $email));
+        $rowset = $this->gateway->select(array('email' => $email));
         return $rowset->current();
-    }
-
-    public function create() {
-        return new User('id_user', $this->table, $this->adapter, $this);
     }
 }

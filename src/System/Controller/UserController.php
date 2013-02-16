@@ -33,7 +33,7 @@ class UserController extends AbstractActionController {
             if ($request->getPost('return')) {
                 return $this->redirect()->toRoute('user');
             }
-            $user = $this->getUserTable()->create();
+            $user = $sm->get('System\Model\User');
             $form->setInputFilter($user->getInputFilter());
             $form->setData($request->getPost());
 

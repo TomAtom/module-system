@@ -2,7 +2,11 @@
 
 namespace System;
 
+use Zend\Db\ResultSet\ResultSet;
+use Zend\Db\TableGateway\TableGateway;
+
 use System\Model\UserTable;
+use System\Model\User;
 use System\Model\RoleTable;
 use System\Model\RightTable;
 
@@ -33,9 +37,19 @@ class Module
             'factories' => array(
                 // db tables
                 'System\Model\UserTable' =>  function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table     = new UserTable($dbAdapter);
+                    $gateway = $sm->get('UserTableGateway');
+                    $table     = new UserTable($gateway);
                     return $table;
+                },
+                'UserTableGateway' =>  function($sm) {
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+                    $resultSetPrototype = new ResultSet();
+                    $resultSetPrototype->setArrayObjectPrototype($sm->get('System\Model\User'));
+                    return new TableGateway('system_users', $dbAdapter, null, $resultSetPrototype);
+                },
+                'System\Model\User' =>  function($sm) {
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+                    return new User('id_user', 'system_users', $dbAdapter, $sm);
                 },
                 'System\Model\RoleTable' =>  function($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
