@@ -4,6 +4,8 @@ namespace System;
 
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\TableGateway\TableGateway;
+use Zend\Log\Logger;
+use Zend\Log\Writer\Stream as LogWriterStream;
 
 use System\Model\UserTable;
 use System\Model\User;
@@ -75,7 +77,15 @@ class Module
 	            $authService->setAdapter($dbTableAuthAdapter);
 	            $authService->setStorage(new \Zend\Authentication\Storage\Session());
 	            return $authService;
-	        },
+	        }, 
+                'System\Service\ErrorHandling' =>  function($sm) {
+                    $filename = 'exceptions_' . date('F') . '.log';
+                    $logger = new Logger();
+                    $writer = new LogWriterStream('./data/logs/' . $filename);
+                    $logger->addWriter($writer);
+                    $service = new Service\ErrorHandling($logger);
+                    return $service;
+                },                       
             ),
         );
     }
@@ -113,6 +123,15 @@ class Module
                                                ->doAuthorization($e);
                                 },
                                100);
+                                
+        $eventManager->attach('dispatch.error', function($event){
+            $exception = $event->getResult()->exception;
+            if ($exception) {
+                $sm = $event->getApplication()->getServiceManager();
+                $service = $sm->get('System\Service\ErrorHandling');
+                $service->logException($exception);
+            }
+        });
     }
     
     public function onDispatchError(\Zend\Mvc\MvcEvent $e) {
@@ -120,16 +139,4 @@ class Module
         $vm->setTemplate('layout/layoutDetail');
     }
 
-//    public function loadConfiguration(\Zend\Mvc\MvcEvent $e)  {
-//        $application = $e->getApplication();
-//        $sm = $application->getServiceManager();
-//        $sharedManager = $application->getEventManager()->getSharedManager();
-//
-//        $sharedManager->attach('Zend\Mvc\Controller\AbstractActionController', \Zend\Mvc\MvcEvent::EVENT_DISPATCH,
-//                                function($e) use ($sm) {
-//                                    $sm->get('ControllerPluginManager')->get('Authorization')
-//                                               ->doAuthorization($e);
-//                                }
-//                            );
-//    }
 }
