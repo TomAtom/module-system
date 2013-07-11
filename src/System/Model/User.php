@@ -6,15 +6,20 @@ use Zend\InputFilter\Factory as InputFactory;
 use Zend\InputFilter\InputFilter;
 use Zend\InputFilter\InputFilterAwareInterface;
 use Zend\InputFilter\InputFilterInterface;
+use \Zend\ServiceManager\ServiceLocatorAwareInterface;
+use \Zend\ServiceManager\ServiceLocatorInterface;
 
-class User extends \Zend\Db\RowGateway\RowGateway implements InputFilterAwareInterface
+class User extends \Zend\Db\RowGateway\RowGateway implements InputFilterAwareInterface, ServiceLocatorAwareInterface
 {
     protected $inputFilter;
     protected $serviceLocator;
     
-    public function __construct($primaryKeyColumn, $table, $adapterOrSql, $serviceLocator) {
+    public function setServiceLocator(ServiceLocatorInterface $serviceLocator) {
         $this->serviceLocator = $serviceLocator;
-        parent::__construct($primaryKeyColumn, $table, $adapterOrSql);
+    }
+ 
+    public function getServiceLocator() {
+        return $this->serviceLocator;
     }
     
     public function getArrayCopy() {

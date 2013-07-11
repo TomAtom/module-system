@@ -51,7 +51,7 @@ class Module
                 },
                 'System\Model\User' =>  function($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    return new User('id_user', 'system_users', $dbAdapter, $sm);
+                    return new User('id_user', 'system_users', $dbAdapter);
                 },
                 'System\Model\RoleTable' =>  function($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
