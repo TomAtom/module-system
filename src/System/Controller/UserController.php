@@ -44,10 +44,10 @@ class UserController extends AbstractActionController {
                     $password = $form->get('password')->getValue();
                     $user->setPassword($password);
                     $user->save();
-                    $this->flashMessenger()->addMessage(array('message' => 'Uživatel přidán'));
+                    $this->flashMessenger()->addSuccessMessage('Uživatel přidán');
                     return $this->redirect()->toRoute('user');
                 } catch (\System\Exception\AlreadyExistsException $e) {
-                   $this->flashMessenger()->addMessage(array('warning' => 'Uživatel s emailem "'.$user->email.'" již existuje'));
+                   $this->flashMessenger()->addErrorMessage('Uživatel s emailem "'.$user->email.'" již existuje');
                    return $this->redirect()->toRoute('user', array(
                        'action' => 'add'
                    ));
@@ -92,10 +92,10 @@ class UserController extends AbstractActionController {
                         $user->setPassword($password);
                         $user->save();
                     }
-                    $this->flashMessenger()->addMessage(array('message' => 'Uživatel uložen'));
+                    $this->flashMessenger()->addSuccessMessage('Uživatel uložen');
                     return $this->redirect()->toRoute('user');
                 } catch (\System\Exception\AlreadyExistsException $e) {
-                    $this->flashMessenger()->addMessage(array('warning' => 'Uživatel s emailem "'.$user->email.'" již existuje'));
+                    $this->flashMessenger()->addErrorMessage('Uživatel s emailem "'.$user->email.'" již existuje');
                     return $this->redirect()->toRoute('user', array(
                         'action' => 'edit',
                         'id' => $idUser
@@ -125,7 +125,7 @@ class UserController extends AbstractActionController {
                 $id = (int) $request->getPost('id');
                 $user = $this->getUserTable()->getUser($id);
                 $user->delete();
-                $this->flashMessenger()->addMessage(array('message' => 'Uživatel smazán'));
+                $this->flashMessenger()->addSuccessMessage('Uživatel smazán');
             }
             return $this->redirect()->toRoute('user');
         }
@@ -167,10 +167,10 @@ class UserController extends AbstractActionController {
                         $user->setPassword($password);
                         $user->save();
                     }
-                    $this->flashMessenger()->addMessage(array('message' => 'Uloženo'));
+                    $this->flashMessenger()->addSuccessMessage('Uloženo');
                     return $this->redirect()->toRoute('user', array('action' => 'profile'));
                 } catch (\System\Exception\AlreadyExistsException $e) {
-                    $this->flashMessenger()->addMessage(array('warning' => 'Uživatel s emailem "'.$user->email.'" již existuje'));
+                    $this->flashMessenger()->addErrorMessage('Uživatel s emailem "'.$user->email.'" již existuje');
                     return $this->redirect()->toRoute('user', array(
                         'action' => 'profile',
                     ));

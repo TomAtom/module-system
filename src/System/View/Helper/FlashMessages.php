@@ -13,19 +13,18 @@ class FlashMessages extends AbstractHelper
 
     public function __invoke() {
         $output = null;
-        
-        if ($this->flashMessenger->hasMessages()) {
-            $output .= '<ul id="messages">';
-            foreach ($this->flashMessenger->getMessages() as $message) {
-                if (is_array($message)) {
-                    $output .= '<li class="' . key($message) . '">' . current($message) . '</li>';
-                } else {
-                    $output .= '<li>'.$message.'</li>';
-                }
-            }
-            $output .= '</ul>';
+        foreach ($this->flashMessenger->getMessages() as $message) {
+            $output .= '<div class="alert">'.$message.'</div>';
         }
-       
+        foreach ($this->flashMessenger->getSuccessMessages() as $message) {
+            $output .= '<div class="alert alert-success">'.$message.'</div>';
+        }
+        foreach ($this->flashMessenger->getErrorMessages() as $message) {
+            $output .= '<div class="alert alert-error">'.$message.'</div>';
+        }
+        foreach ($this->flashMessenger->getInfoMessages() as $message) {
+            $output .= '<div class="alert alert-info">'.$message.'</div>';
+        }
         return $output;
     }
     

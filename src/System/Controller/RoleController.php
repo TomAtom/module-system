@@ -41,10 +41,10 @@ class RoleController extends AbstractActionController {
                 try {
                     $role->exchangeArray($form->getData());
                     $this->getRoleTable()->saveRole($role);
-                    $this->flashMessenger()->addMessage(array('message' => 'Role přidána'));
+                    $this->flashMessenger()->addSuccessMessage('Role přidána');
                     return $this->redirect()->toRoute('role');
                 } catch (\System\Exception\AlreadyExistsException $e) {
-                    $this->flashMessenger() ->addMessage(array('warning' => 'Role s názvem "'.$role->name.'" již existuje'));
+                    $this->flashMessenger() ->addErrorMessage('Role s názvem "'.$role->name.'" již existuje');
                     return $this->redirect()->toRoute('role', array(
                         'action' => 'add'
                     ));
@@ -79,10 +79,10 @@ class RoleController extends AbstractActionController {
             if ($form->isValid()) {
                 try {
                     $this->getRoleTable()->saveRole($form->getData());
-                    $this->flashMessenger()->addMessage(array('message' => 'Role uložena'));
+                    $this->flashMessenger()->addSuccessMessage('Role uložena');
                     return $this->redirect()->toRoute('role');
                 } catch (\System\Exception\AlreadyExistsException $e) {
-                    $this->flashMessenger() ->addMessage(array('warning' => 'Role s názvem "'.$role->name.'" již existuje'));
+                    $this->flashMessenger() ->addErrorMessage('Role s názvem "'.$role->name.'" již existuje');
                     return $this->redirect()->toRoute('role', array(
                         'action' => 'edit',
                         'id' => $id
@@ -111,7 +111,7 @@ class RoleController extends AbstractActionController {
             if (array_key_exists('yes', $del)) {
                 $id = (int) $request->getPost('id');
                 $this->getRoleTable()->deleteRole($id);
-                $this->flashMessenger()->addMessage(array('message' => 'Role smazána'));
+                $this->flashMessenger()->addSuccessMessage('Role smazána');
             }
             return $this->redirect()->toRoute('role');
         }
@@ -149,7 +149,7 @@ class RoleController extends AbstractActionController {
                 }
             }
             $rightTable->getAdapter()->getDriver()->getConnection()->commit();
-            $this->flashMessenger()->addMessage(array('message' => 'Uloženo'));
+            $this->flashMessenger()->addSuccessMessage('Uloženo');
             return $this->redirect()->toRoute('role');
         }
         return array(

@@ -38,10 +38,10 @@ class AuthentificationController extends AbstractActionController {
                         null
                     ));
                     $this->setUserLoginDateTime($this->getAuthService()->getIdentity()->id_user);
-                    $this->flashMessenger()->addMessage(array('notice' => 'Uživatel byl přihlášen'));
+                    $this->flashMessenger()->addSuccessMessage('Uživatel byl přihlášen');
                     $this->redirect()->toRoute('home');
                 } else {
-                    $this->flashMessenger()->addMessage(array('warning' => 'Přihlášení se nezdařilo. Zadejte prosím platné přihlašovací údaje.'));
+                    $this->flashMessenger()->addInfoMessage('Přihlášení se nezdařilo. Zadejte prosím platné přihlašovací údaje.');
                     $this->redirect();
                 }
             }
@@ -53,7 +53,7 @@ class AuthentificationController extends AbstractActionController {
     public function logoutAction()
     {
         $this->getAuthService()->clearIdentity();
-        $this->flashmessenger()->addMessage('Ohlášeno');
+        $this->flashmessenger()->addInfoMessage('Ohlášeno');
         return $this->redirect()->toRoute('authentification');
     }
     
