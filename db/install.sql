@@ -22,6 +22,7 @@ CREATE TABLE `system_users` (
   `password` VARCHAR(33) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL ,
   `last_login` DATETIME NULL ,
   `id_role` MEDIUMINT UNSIGNED NOT NULL ,
+  `is_admin` TINYINT(1) NOT NULL DEFAULT FALSE ,
   PRIMARY KEY (`id_user`) ,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) ,
   INDEX `fk_users_roles1` (`id_role` ASC) ,
@@ -83,7 +84,7 @@ COLLATE = utf8_unicode_ci;
 -- -----------------------------------------------------
 -- Table `guestbook_guestbook`
 -- -----------------------------------------------------
-CREATE TABLE`guestbook_guestbook` (
+CREATE TABLE `guestbook_guestbook` (
   `id_post` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT ,
   `name` VARCHAR(35) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL ,
   `email` VARCHAR(35) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NULL ,
@@ -141,9 +142,9 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `tomovofoto9`.`article_articles`
+-- Table `article_articles`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `article_articles` (
+CREATE TABLE `article_articles` (
   `id_article` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
   `id_user` MEDIUMINT UNSIGNED NOT NULL ,
   `is_visible` TINYINT(1) NOT NULL ,
@@ -167,35 +168,32 @@ COLLATE = utf8_unicode_ci;
 -- Data for table `system_roles`
 -- -----------------------------------------------------
 START TRANSACTION;
+USE `tomovofoto9`;
 INSERT INTO `system_roles` (`id_role`, `name`) VALUES (1, 'host');
 INSERT INTO `system_roles` (`id_role`, `name`) VALUES (2, 'administrátor');
 
 COMMIT;
 
-
 -- -----------------------------------------------------
 -- Data for table `system_users`
 -- -----------------------------------------------------
 START TRANSACTION;
-INSERT INTO `system_users` (`id_user`, `name`, `surname`, `email`, `password`, `last_login`, `id_role`) VALUES (NULL, '', '', 'admin@admin.cz', 'c8fc151e73b8d28924fe54fc850017e0', NULL, 2);
+USE `tomovofoto9`;
+INSERT INTO `system_users` (`id_user`, `name`, `surname`, `email`, `password`, `last_login`, `id_role`, `is_admin`) VALUES (NULL, '', '', 'admin', '21232f297a57a5a743894a0e4a801fc3', NULL, 2, NULL);
 
 COMMIT;
-
 
 -- -----------------------------------------------------
 -- Data for table `system_rights`
 -- -----------------------------------------------------
-INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES
-(2, 'add', 'System\\Controller\\Role'),
-(2, 'add', 'System\\Controller\\User'),
-(2, 'delete', 'System\\Controller\\Role'),
-(2, 'delete', 'System\\Controller\\User'),
-(2, 'edit', 'System\\Controller\\Role'),
-(2, 'edit', 'System\\Controller\\User'),
-(2, 'index', 'Application\\Controller\\Index'),
-(1, 'index', 'Application\\Controller\\Index'),
-(2, 'index', 'System\\Controller\\Authentification'),
-(2, 'index', 'System\\Controller\\Role'),
-(2, 'index', 'System\\Controller\\User'),
-(2, 'logout', 'System\\Controller\\Authentification'),
-(2, 'rights', 'System\\Controller\\Role');
+START TRANSACTION;
+USE `tomovofoto9`;
+INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (1, 'index', NULL);
+INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'index', NULL);
+INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'index', NULL);
+INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'add', NULL);
+INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'index', NULL);
+INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'add', NULL);
+
+COMMIT;
+
