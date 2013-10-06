@@ -3,8 +3,7 @@
 namespace System\View\Helper;  
 use Zend\View\Helper\AbstractHelper;
 
-class IsAllowed extends AbstractHelper
-{   
+class IsAllowed extends AbstractHelper {   
     
     protected $acl;
     protected $routes;
@@ -32,4 +31,4 @@ class IsAllowed extends AbstractHelper
         }
     }
     
-}  
+}

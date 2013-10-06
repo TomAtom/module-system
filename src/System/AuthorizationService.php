@@ -11,8 +11,8 @@ class AuthorizationService {
     protected $acl;
     
     public function doAuthorization(\Zend\Mvc\MvcEvent $e) {
-        $this->acl = \System\Acl::getInstance();
         $this->serviceManager = $e->getApplication()->getServiceManager();
+        $this->acl = $this->serviceManager->get('System\Acl');
         $this->setRoles();
         $this->setResources();
         $this->setRights();

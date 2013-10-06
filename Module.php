@@ -85,7 +85,10 @@ class Module
                     $logger->addWriter($writer);
                     $service = new Service\ErrorHandling($logger);
                     return $service;
-                },                       
+                },
+                'System\Acl' => function($sm) {
+                    return new \System\Acl();
+                },
             ),
         );
     }
@@ -100,7 +103,8 @@ class Module
                 'isAllowed' => function($sm) {
                     $locator = $sm->getServiceLocator();
                     $config = $locator->get('Config');
-                    return new View\Helper\IsAllowed(\System\Acl::getInstance(), $config['router']['routes']);
+                    $acl = $locator->get('System\Acl');
+                    return new View\Helper\IsAllowed($acl, $config['router']['routes']);
                 },
                 'absoluteUrl' => function($sm) {
                     $locator = $sm->getServiceLocator(); // $sm is the view helper manager, so we need to fetch the main service manager
