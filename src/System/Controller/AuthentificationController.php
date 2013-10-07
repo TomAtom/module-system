@@ -33,10 +33,11 @@ class AuthentificationController extends AbstractActionController {
                 $result = $this->getAuthService()->authenticate();
                 if ($result->isValid()) {
                     $storage = $this->getAuthService()->getStorage();
-                    $storage->write($this->getAuthService()->getAdapter()->getResultRowObject(
+                    $identity = $this->getAuthService()->getAdapter()->getResultRowObject(
                         array('id_user', 'name', 'surname', 'email', 'last_login', 'id_role', 'is_admin'),
                         null
-                    ));
+                    );
+                    $storage->write($identity);
                     $this->setUserLoginDateTime($this->getAuthService()->getIdentity()->id_user);
                     $this->flashMessenger()->addSuccessMessage('Uživatel byl přihlášen');
                     $this->redirect()->toRoute('home');
