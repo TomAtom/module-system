@@ -87,7 +87,8 @@ class Module
                     return $service;
                 },
                 'System\Acl' => function($sm) {
-                    return new \System\Acl();
+                    $authService = $sm->get('AuthService');
+                    return new \System\Acl($authService);
                 },
             ),
         );
