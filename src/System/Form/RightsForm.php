@@ -59,4 +59,11 @@ class RightsForm extends Form
         return $actions;
     }
     
+    protected function getControllerActionDescription($controllerClass, $action) {
+        $controller = new \ReflectionClass($controllerClass);
+        $method = $controller->getMethod($action . 'Action');
+        preg_match_all('#@description(.*?)\n#s', $method->getDocComment(), $annotations);
+        var_dump($annotations);       
+    }
+    
 }  
