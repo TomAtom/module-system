@@ -58,19 +58,22 @@ return array(
             'system' => __DIR__ . '/../view',
         ),
     ),
-//    'view_helpers' => array(  
-//        'invokables' => array(  
-//            'flashMessages' => 'Application\View\Helper\FlashMessages',  
-//        )  
-//    )  
-//    'controller_plugins' => array(
-//        'invokables' => array(
-//           'Authorization' => 'System\Controller\Plugin\Authorization',
-//         )
-//    ),
     'service_manager' => array(
         'invokables' => array(
             'Authorization' => 'System\AuthorizationService',
+        ),
+        'abstract_factories' => array(
+            'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
+        ),
+    ),
+    'caches' => array(
+        'CacheAcl' => array(
+            'adapter' => array(
+                'name' => 'filesystem'
+            ),
+            'options' => array(
+                'cache_dir' => "./data/cache/aclcache",
+            ),
         ),
     ),
 );

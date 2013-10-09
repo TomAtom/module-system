@@ -87,8 +87,17 @@ class Module
                     return $service;
                 },
                 'System\Acl' => function($sm) {
-                    $authService = $sm->get('AuthService');
-                    return new \System\Acl($authService);
+                    $cache = $sm->get('CacheAcl');
+                    if (!$cache->hasItem('acl')) {
+                        $acl = new \System\Acl();
+                        $acl->setRoles($sm->get('System\Model\RoleTable'));
+                        $acl->setResources($sm->get('Config'));
+                        $acl->setRights($sm->get('System\Model\RightTable'));
+                        $cache->addItem('acl', serialize($acl));
+                    } else {
+                       $acl = unserialize($cache->getItem('acl'));
+                    }
+                    return $acl;
                 },
             ),
         );
