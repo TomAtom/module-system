@@ -149,6 +149,8 @@ class RoleController extends AbstractActionController {
                 }
             }
             $rightTable->getAdapter()->getDriver()->getConnection()->commit();
+            $aclCache = $sm->get('CacheAcl');
+            $aclCache->flush();
             $this->flashMessenger()->addSuccessMessage('Uloženo');
             return $this->redirect()->toRoute('role');
         }
