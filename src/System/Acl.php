@@ -42,7 +42,13 @@ class Acl extends \Zend\Permissions\Acl\Acl implements \Zend\ServiceManager\Serv
         $authService = $this->getServiceLocator()->get('AuthService');
         if ($authService->hasIdentity()) {
             $identity = $authService->getIdentity();
-            return $this->isAllowed($identity->id_role, $controller, $action);
+            $isAllowed = false;
+            foreach ($identity->rolesIds as $roleId) {
+                if ($this->isAllowed($roleId, $controller, $action)) {
+                    $isAllowed = true;
+                }
+            }
+            return $isAllowed;
         } else {
             return $this->isAllowed(\System\Model\RoleTable::ID_ROLE_GUEST, $controller, $action);
         }

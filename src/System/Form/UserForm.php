@@ -36,11 +36,6 @@ class UserForm extends Form
         $element->setLabel('heslo (zopakujte)');
         $this->add($element);
         
-        $element = new \Zend\Form\Element\Select('id_role');
-        $element->setLabel('uživatelská role');
-        $element->setEmptyOption('-- vyberte --');
-        $this->add($element);
-        
         $element = new \Zend\Form\Element\Checkbox('is_admin');
         $element->setCheckedValue('1');
         $element->setUncheckedValue('0');
@@ -53,15 +48,6 @@ class UserForm extends Form
         $element = new \Zend\Form\Element\Submit('return');
         $element->setValue('Zpět');
         $this->add($element);
-    }
-    
-    public function setRoles(\System\Model\RoleTable $roleTable) {
-        $roles = $roleTable->fetchAll();
-        $options = array();
-        foreach ($roles as $role) {
-            $options[$role->id_role] = $role->name;
-        }
-        $this->get('id_role')->setValueOptions($options);
     }
     
 }

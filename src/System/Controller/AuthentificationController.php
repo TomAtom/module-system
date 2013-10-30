@@ -37,6 +37,8 @@ class AuthentificationController extends AbstractActionController {
                         array('id_user', 'name', 'surname', 'email', 'last_login', 'id_role', 'is_admin'),
                         null
                     );
+                    $userRoleTable = $sm->get('System\Model\UserRoleTable');
+                    $identity->rolesIds = $userRoleTable->getRolesIdsByUser($identity->id_user);
                     $storage->write($identity);
                     $this->setUserLoginDateTime($this->getAuthService()->getIdentity()->id_user);
                     $this->flashMessenger()->addSuccessMessage('Uživatel byl přihlášen');

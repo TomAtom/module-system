@@ -25,7 +25,7 @@ class UserController extends AbstractActionController {
 
     public function addAction() {
         $sm = $this->getServiceLocator();
-        $form = $sm->get('System\Form\UserForm');
+        $form = new \System\Form\UserForm();
         $form->get('submit')->setValue('Přidat');
 
         $request = $this->getRequest();
@@ -67,7 +67,7 @@ class UserController extends AbstractActionController {
         $user = $this->getUserTable()->getUser($idUser);
 
         $sm = $this->getServiceLocator();
-        $form = $sm->get('System\Form\UserForm'); /* @var $form \System\Form\UserForm */
+        $form = new \System\Form\UserForm();
         $form->bind($user);
         $form->get('submit')->setAttribute('value', 'Uložit');       
 
@@ -143,8 +143,7 @@ class UserController extends AbstractActionController {
         }
         $identity = $authenticationService->getIdentity();
         $user = $this->getUserTable()->getUser($identity->id_user);
-        $form = $sm->get('System\Form\UserForm');
-        $form->remove('id_role');
+        $form = new \System\Form\UserForm();
         $form->remove('is_admin');
         $form->bind($user);
         $form->get('submit')->setAttribute('value', 'Uložit');
@@ -180,6 +179,34 @@ class UserController extends AbstractActionController {
 
         return array(
             'form' => $form,
+        );
+    }
+    
+    public function roleAction() {
+        $idUser = (int) $this->params()->fromRoute('id', 0);
+        $sm = $this->getServiceLocator();
+        $roleTable = $sm->get('System\Model\RoleTable');
+        $userRoleTable = $sm->get('System\Model\UserRoleTable');
+        $form = new \System\Form\UserRoles('role');
+        $form->setRolesTypes($roleTable->fetchAll());
+        $form->setRolesIds($userRoleTable->getRolesIdsByUser($idUser));
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            if ($request->getPost('return')) {
+                return $this->redirect()->toRoute('user');
+            }
+            $dataFromForm = $request->getPost('roles', array());
+            $callback = function($var) {
+                return $var == '1';
+            };
+            $rolesIds = array_keys(array_filter($dataFromForm, $callback));
+            $userRoleTable->setUserRoles($idUser, $rolesIds);
+            $this->flashMessenger()->addSuccessMessage('Uloženo');
+            return $this->redirect()->toRoute('user');
+        }
+        return array(
+            'form' => $form,
+            'id' => $idUser
         );
     }
 

@@ -9,9 +9,8 @@ class AuthorizationService {
     public function doAuthorization(\Zend\Mvc\MvcEvent $e) {
         $this->serviceManager = $e->getApplication()->getServiceManager();
         $acl = $this->serviceManager->get('System\Acl');
-        if ($acl->isCurrentUserAllowed($e->getRouteMatch()->getParam('controller'),
+        if (!$acl->isCurrentUserAllowed($e->getRouteMatch()->getParam('controller'),
                                              $e->getRouteMatch()->getParam('action'))) {
-        } else {
             if ($this->existsControllerAction($e)) {
                 $url = $e->getRouter()->assemble(array(), array('name' => 'authentification'));
                 $response = $e->getResponse();

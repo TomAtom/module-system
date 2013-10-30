@@ -63,12 +63,16 @@ class Module
                     $table     = new RightTable($dbAdapter);
                     return $table;
                 },
-                // forms
-                'System\Form\UserForm' =>  function($sm) {
-                    $roleTable = $sm->get('System\Model\RoleTable');
-                    $form     = new \System\Form\UserForm();
-                    $form->setRoles($roleTable);
-                    return $form;
+                'System\Model\UserRoleTable' =>  function($sm) {
+                    $tableGateway = $sm->get('UserRoleTableGateway');
+                    $table = new \System\Model\UserRoleTable($tableGateway);
+                    return $table;
+                },
+                'UserRoleTableGateway' => function ($sm) {
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+                    $resultSetPrototype = new ResultSet();
+                    $resultSetPrototype->setArrayObjectPrototype(new \System\Model\UserRole());
+                    return new TableGateway('system_users_roles', $dbAdapter, null, $resultSetPrototype);
                 },
                 'AuthService' => function($sm) {
 	            $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');

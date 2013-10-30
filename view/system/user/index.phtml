@@ -30,10 +30,13 @@ $this->headTitle($title);
     <td><?php echo $this->escapeHtml($user->last_login);?></td>
     <td>
         <?php if ($this->isAllowed('user', 'edit')): ?>
-        <a href="<?php echo $this->url('user', array('action'=>'edit', 'id' => $user->id_user));?>">Upravit</a>
+            <a href="<?php echo $this->url('user', array('action'=>'edit', 'id' => $user->id_user));?>">Upravit</a>
+        <?php endif; ?>
+        <?php if ($this->isAllowed('user', 'role')): ?>
+            <a href="<?php echo $this->url('user', array('action'=>'role', 'id' => $user->id_user));?>">Role</a>
         <?php endif; ?>
         <?php if ($this->isAllowed('user', 'delete')): ?>
-        <a href="<?php echo $this->url('user', array('action'=>'delete', 'id' => $user->id_user));?>">Smazat</a>
+            <a href="<?php echo $this->url('user', array('action'=>'delete', 'id' => $user->id_user));?>">Smazat</a>
         <?php endif; ?>
     </td>
 </tr>
