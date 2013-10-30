@@ -2,7 +2,7 @@
 return array(
     'modules' => array(
         'System',
-        'Application'
+        'Application'//to je tu jen kvuli tomu, ze po loginu jse jde na routu "home"
     ),
     'module_listener_options' => array(
         'config_glob_paths'    => array(
