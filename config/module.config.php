@@ -59,9 +59,6 @@ return array(
         ),
     ),
     'service_manager' => array(
-        'invokables' => array(
-            'Authorization' => 'System\AuthorizationService',
-        ),
         'abstract_factories' => array(
             'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
         ),

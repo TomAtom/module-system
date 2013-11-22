@@ -9,7 +9,7 @@ class AuthArea extends AbstractHelper
     protected $authService = null;
 
 
-    public function __construct($authService) {
+    public function __construct(\Zend\Authentication\AuthenticationService $authService) {
         $this->authService = $authService;
     }
 

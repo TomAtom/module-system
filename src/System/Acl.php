@@ -5,17 +5,7 @@ namespace System;
 use Zend\Permissions\Acl\Role\GenericRole as Role;
 use Zend\Permissions\Acl\Resource\GenericResource as Resource;
 
-class Acl extends \Zend\Permissions\Acl\Acl implements \Zend\ServiceManager\ServiceLocatorAwareInterface {
-    
-    private $serviceLocator;
-
-    public function setServiceLocator(\Zend\ServiceManager\ServiceLocatorInterface $serviceLocator) {
-        $this->serviceLocator = $serviceLocator;
-    }
- 
-    public function getServiceLocator() {
-        return $this->serviceLocator;
-    }
+class Acl extends \Zend\Permissions\Acl\Acl {
     
     public function setRoles(\System\Model\RoleTable $roleTable) {
         $roles = $roleTable->fetchAll();
@@ -36,22 +26,6 @@ class Acl extends \Zend\Permissions\Acl\Acl implements \Zend\ServiceManager\Serv
             $this->allow($right->id_role, $right->controller, $right->action);
         }
         $this->allow(null, 'System\Controller\Authentification', null);
-    }
-
-    public function isCurrentUserAllowed($controller, $action) {
-        $authService = $this->getServiceLocator()->get('AuthService');
-        if ($authService->hasIdentity()) {
-            $identity = $authService->getIdentity();
-            $isAllowed = false;
-            foreach ($identity->rolesIds as $roleId) {
-                if ($this->isAllowed($roleId, $controller, $action)) {
-                    $isAllowed = true;
-                }
-            }
-            return $isAllowed;
-        } else {
-            return $this->isAllowed(\System\Model\RoleTable::ID_ROLE_GUEST, $controller, $action);
-        }
     }
     
 }

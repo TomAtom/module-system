@@ -137,7 +137,7 @@ class UserController extends AbstractActionController {
     
     public function profileAction() {
         $sm = $this->getServiceLocator();
-        $authenticationService = $sm->get('AuthService');
+        $authenticationService = $sm->get('AuthentificationService');
         if (!$authenticationService->hasIdentity()) {
             throw new \Exception('uzivatel bez identity nemuze editovat svuj profil');
         }

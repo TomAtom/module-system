@@ -4,12 +4,18 @@ namespace System;
 
 class AuthorizationService {
     
-    protected $serviceManager;
+    protected $authentificationService;
+    
+    protected $acl;
+    
+    public function __construct(\System\Acl $acl,
+     \Zend\Authentication\AuthenticationService $authentificationService) {
+        $this->acl = $acl;
+        $this->authentificationService = $authentificationService;
+    }
     
     public function doAuthorization(\Zend\Mvc\MvcEvent $e) {
-        $this->serviceManager = $e->getApplication()->getServiceManager();
-        $acl = $this->serviceManager->get('System\Acl');
-        if (!$acl->isCurrentUserAllowed($e->getRouteMatch()->getParam('controller'),
+        if (!$this->isCurrentUserAllowed($e->getRouteMatch()->getParam('controller'),
                                              $e->getRouteMatch()->getParam('action'))) {
             if ($this->existsControllerAction($e)) {
                 $url = $e->getRouter()->assemble(array(), array('name' => 'authentification'));
@@ -21,9 +27,25 @@ class AuthorizationService {
         }
     }
     
+    public function isCurrentUserAllowed($controller, $action) {
+        if ($this->authentificationService->hasIdentity()) {
+            $identity = $this->authentificationService->getIdentity();
+            $isAllowed = false;
+            foreach ($identity->rolesIds as $roleId) {
+                if ($this->acl->isAllowed($roleId, $controller, $action)) {
+                    $isAllowed = true;
+                }
+            }
+            return $isAllowed;
+        } else {
+            return $this->acl->isAllowed(\System\Model\RoleTable::ID_ROLE_GUEST, $controller, $action);
+        }
+    }
+    
     protected function existsControllerAction(\Zend\Mvc\MvcEvent $e) {
+        $sm = $e->getApplication()->getServiceManager();
         $return = false;
-        $config = $this->serviceManager->get('Config');
+        $config = $sm->get('Config');
         if (array_key_exists($e->getRouteMatch()->getParam('controller'), $config['controllers']['invokables'])) {
            $classMethods = get_class_methods($config['controllers']['invokables'][$e->getRouteMatch()->getParam('controller')]);
            if (in_array($e->getRouteMatch()->getParam('action').'Action', $classMethods)) {

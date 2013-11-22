@@ -37,7 +37,7 @@ class UserControllerTest extends PHPUnit_Framework_TestCase {
     
     public function testLoggingInShouldBeOk() {
         $this->login();
-        $this->assertTrue($this->controller->getServiceLocator()->get('AuthService')->hasIdentity());
+        $this->assertTrue($this->controller->getServiceLocator()->get('AuthentificationService')->hasIdentity());
     }
     
     protected function login() {

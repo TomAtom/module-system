@@ -74,7 +74,7 @@ class Module
                     $resultSetPrototype->setArrayObjectPrototype(new \System\Model\UserRole());
                     return new TableGateway('system_users_roles', $dbAdapter, null, $resultSetPrototype);
                 },
-                'AuthService' => function($sm) {
+                'AuthentificationService' => function($sm) {
 	            $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
 	            $dbTableAuthAdapter  = new \Zend\Authentication\Adapter\DbTable($dbAdapter, 'system_users', 'email', 'password', 'MD5(?)');
 	            $authService = new \Zend\Authentication\AuthenticationService();
@@ -103,6 +103,12 @@ class Module
                     }
                     return $acl;
                 },
+                'AuthorizationService' =>  function($sm) {
+                    $acl = $sm->get('System\Acl');
+                    $authenticationService = $sm->get('AuthentificationService');
+                    $service = new \System\AuthorizationService($acl, $authenticationService);
+                    return $service;
+                },
             ),
         );
     }
@@ -112,13 +118,13 @@ class Module
             'factories' => array(
                 'authArea' => function($sm) {
                     $locator = $sm->getServiceLocator();
-                    return new View\Helper\AuthArea($locator->get('AuthService'));
+                    return new View\Helper\AuthArea($locator->get('AuthentificationService'));
                 },
                 'isAllowed' => function($sm) {
                     $locator = $sm->getServiceLocator();
                     $config = $locator->get('Config');
-                    $acl = $locator->get('System\Acl');
-                    return new View\Helper\IsAllowed($acl, $config['router']['routes']);
+                    $authorizationService = $locator->get('AuthorizationService');
+                    return new View\Helper\IsAllowed($authorizationService, $config['router']['routes']);
                 },
                 'absoluteUrl' => function($sm) {
                     $locator = $sm->getServiceLocator(); // $sm is the view helper manager, so we need to fetch the main service manager
@@ -137,7 +143,7 @@ class Module
         $eventManager = $application->getEventManager();
         $eventManager->attach(\Zend\Mvc\MvcEvent::EVENT_DISPATCH,
                     function($e) use ($sm) {
-                                    $sm->get('Authorization')
+                                    $sm->get('AuthorizationService')
                                                ->doAuthorization($e);
                                 },
                                100);

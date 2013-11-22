@@ -5,20 +5,16 @@ namespace System\Controller;
 use Zend\Mvc\Controller\AbstractActionController;
 
 class AuthentificationController extends AbstractActionController {
-    
-    protected $authservice;
 	     
     public function getAuthService() {
-        if (! $this->authservice) {
-            $this->authservice = $this->getServiceLocator()
-                                      ->get('AuthService');
-        }
-        return $this->authservice;
+        return $this->authservice = $this->getServiceLocator()
+                                      ->get('AuthentificationService');
+
     }
     
     public function loginAction() {
         $sm = $this->getServiceLocator();
-        $authService = $sm->get('AuthService');
+        $authService = $this->getAuthService();
         if ($authService->hasIdentity()) {
             return $this->redirect()->toRoute('home');
         }
