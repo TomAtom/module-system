@@ -145,6 +145,7 @@ class UserController extends AbstractActionController {
         $user = $this->getUserTable()->getUser($identity->id_user);
         $form = new \System\Form\UserForm();
         $form->remove('is_admin');
+        $form->remove('is_active');
         $form->bind($user);
         $form->get('submit')->setAttribute('value', 'Uložit');
 
