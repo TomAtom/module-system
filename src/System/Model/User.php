@@ -38,9 +38,6 @@ class User extends \Zend\Db\RowGateway\RowGateway implements InputFilterAwareInt
         $dataFiltered['surname']  = (isset($data['surname'])) ? $data['surname'] : null;
         $dataFiltered['email']  = (isset($data['email'])) ? $data['email'] : null;
         $dataFiltered['last_login']  = (isset($data['last_login'])) ? $data['last_login'] : null;
-        if (array_key_exists('id_role', $data)) {
-            $dataFiltered['id_role']  =  $data['id_role'];
-        }
         if (array_key_exists('is_admin', $data)) {
             $dataFiltered['is_admin']  =  $data['is_admin'];
         }

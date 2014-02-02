@@ -1,15 +1,3 @@
--- -----------------------------------------------------
--- Table `system_roles`
--- -----------------------------------------------------
-CREATE TABLE `system_roles` (
-  `id_role` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `name` VARCHAR(25) NOT NULL ,
-  PRIMARY KEY (`id_role`) ,
-  UNIQUE INDEX `name_UNIQUE` (`name` ASC) )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_unicode_ci;
-
 
 -- -----------------------------------------------------
 -- Table `system_users`
@@ -21,16 +9,10 @@ CREATE TABLE `system_users` (
   `email` VARCHAR(25) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL ,
   `password` VARCHAR(33) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL ,
   `last_login` DATETIME NULL ,
-  `id_role` MEDIUMINT UNSIGNED NOT NULL ,
   `is_admin` TINYINT(1) NOT NULL DEFAULT FALSE ,
+  `is_active` TINYINT(1) NOT NULL DEFAULT TRUE ,
   PRIMARY KEY (`id_user`) ,
-  UNIQUE INDEX `email_UNIQUE` (`email` ASC) ,
-  INDEX `fk_users_roles1` (`id_role` ASC) ,
-  CONSTRAINT `fk_users_roles1`
-    FOREIGN KEY (`id_role` )
-    REFERENCES `system_roles` (`id_role` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
@@ -63,8 +45,8 @@ CREATE TABLE `photogallery_photos` (
   `comment` TEXT CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NULL DEFAULT NULL ,
   `border` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0' ,
   PRIMARY KEY (`id_photo`) ,
-  INDEX `fk_photos_collection` (`id_collection` ASC) ,
-  INDEX `fk_photos_users1` (`id_user` ASC) ,
+  INDEX `fk_photos_collection_idx` (`id_collection` ASC) ,
+  INDEX `fk_photos_users1_idx` (`id_user` ASC) ,
   CONSTRAINT `fk_photos_collection`
     FOREIGN KEY (`id_collection` )
     REFERENCES `photogallery_collections` (`id_collection` )
@@ -111,12 +93,25 @@ CREATE TABLE `photogallery_photo_comments` (
   `email` VARCHAR(35) NULL ,
   `answer` TEXT NULL ,
   PRIMARY KEY (`id_comment`) ,
-  INDEX `fk_photo_comments_1` (`id_photo` ASC) ,
+  INDEX `fk_photo_comments_1_idx` (`id_photo` ASC) ,
   CONSTRAINT `fk_photo_comments_1`
     FOREIGN KEY (`id_photo` )
     REFERENCES `photogallery_photos` (`id_photo` )
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_unicode_ci;
+
+
+-- -----------------------------------------------------
+-- Table `system_roles`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `system_roles` (
+  `id_role` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `name` VARCHAR(25) NOT NULL ,
+  PRIMARY KEY (`id_role`) ,
+  UNIQUE INDEX `name_UNIQUE` (`name` ASC) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
@@ -130,7 +125,7 @@ CREATE TABLE `system_rights` (
   `action` VARCHAR(20) NOT NULL ,
   `controller` VARCHAR(100) NOT NULL ,
   PRIMARY KEY (`action`, `id_role`, `controller`) ,
-  INDEX `fk_rights_roles1` (`id_role` ASC) ,
+  INDEX `fk_rights_roles1_idx` (`id_role` ASC) ,
   CONSTRAINT `fk_rights_roles1`
     FOREIGN KEY (`id_role` )
     REFERENCES `system_roles` (`id_role` )
@@ -152,7 +147,7 @@ CREATE TABLE `article_articles` (
   `title` VARCHAR(100) NOT NULL ,
   `content` TEXT NULL ,
   PRIMARY KEY (`id_article`) ,
-  INDEX `fk_articles_system_users1` (`id_user` ASC) ,
+  INDEX `fk_articles_system_users1_idx` (`id_user` ASC) ,
   CONSTRAINT `fk_articles_system_users1`
     FOREIGN KEY (`id_user` )
     REFERENCES `system_users` (`id_user` )
@@ -163,23 +158,41 @@ DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 
-
 -- -----------------------------------------------------
--- Data for table `system_roles`
+-- Table `system_users_roles`
 -- -----------------------------------------------------
-START TRANSACTION;
-USE `tomovofoto9`;
-INSERT INTO `system_roles` (`id_role`, `name`) VALUES (1, 'host');
-INSERT INTO `system_roles` (`id_role`, `name`) VALUES (2, 'administrátor');
-
-COMMIT;
+CREATE  TABLE IF NOT EXISTS `system_users_roles` (
+  `id_role` MEDIUMINT UNSIGNED NOT NULL ,
+  `id_user` MEDIUMINT UNSIGNED NOT NULL ,
+  INDEX `fk_system_users_roles_system_roles1_idx` (`id_role` ASC) ,
+  INDEX `fk_system_users_roles_system_users1_idx` (`id_user` ASC) ,
+  PRIMARY KEY (`id_role`, `id_user`) ,
+  CONSTRAINT `fk_system_users_roles_system_roles1`
+    FOREIGN KEY (`id_role` )
+    REFERENCES `system_roles` (`id_role` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_system_users_roles_system_users1`
+    FOREIGN KEY (`id_user` )
+    REFERENCES `system_users` (`id_user` )
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Data for table `system_users`
 -- -----------------------------------------------------
 START TRANSACTION;
-USE `tomovofoto9`;
-INSERT INTO `system_users` (`id_user`, `name`, `surname`, `email`, `password`, `last_login`, `id_role`, `is_admin`) VALUES (NULL, '', '', 'admin', '21232f297a57a5a743894a0e4a801fc3', NULL, 2, NULL);
+INSERT INTO `system_users` (`id_user`, `name`, `surname`, `email`, `password`, `last_login`, `is_admin`, `is_active`) VALUES (1, '', '', 'admin', '21232f297a57a5a743894a0e4a801fc3', NULL, TRUE, TRUE);
+
+COMMIT;
+
+-- -----------------------------------------------------
+-- Data for table `system_roles`
+-- -----------------------------------------------------
+START TRANSACTION;
+INSERT INTO `system_roles` (`id_role`, `name`) VALUES (1, 'host');
+INSERT INTO `system_roles` (`id_role`, `name`) VALUES (2, 'administrátor');
 
 COMMIT;
 
@@ -187,13 +200,21 @@ COMMIT;
 -- Data for table `system_rights`
 -- -----------------------------------------------------
 START TRANSACTION;
-USE `tomovofoto9`;
-INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (1, 'index', NULL);
-INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'index', NULL);
-INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'index', NULL);
-INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'add', NULL);
-INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'index', NULL);
-INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'add', NULL);
+INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (1, 'index', 'Application\Controller\Index');
+INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'index', 'System\Controller\Role');
+INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'index', 'System\Controller\User');
+INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'add', 'System\Controller\User');
+INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'index', 'System\Controller\Authentification');
+INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'add', 'System\Controller\Role');
+INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'rights', 'System\Controller\Role');
+INSERT INTO `system_rights` (`id_role`, `action`, `controller`) VALUES (2, 'index', 'Application\Controller\Index');
 
 COMMIT;
 
+-- -----------------------------------------------------
+-- Data for table `system_users_roles`
+-- -----------------------------------------------------
+START TRANSACTION;
+INSERT INTO `system_users_roles` (`id_role`, `id_user`) VALUES (2, 1);
+
+COMMIT;
