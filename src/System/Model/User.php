@@ -92,7 +92,7 @@ class User extends \Zend\Db\RowGateway\RowGateway implements InputFilterAwareInt
                         'options' => array(
                             'encoding' => 'UTF-8',
                             'min'      => 1,
-                            'max'      => 20,
+                            'max'      => 50,
                         ),
                     ),
                 ),
@@ -111,7 +111,7 @@ class User extends \Zend\Db\RowGateway\RowGateway implements InputFilterAwareInt
                         'options' => array(
                             'encoding' => 'UTF-8',
                             'min'      => 1,
-                            'max'      => 20,
+                            'max'      => 50,
                         ),
                     ),
                 ),
@@ -130,7 +130,7 @@ class User extends \Zend\Db\RowGateway\RowGateway implements InputFilterAwareInt
                         'options' => array(
                             'encoding' => 'UTF-8',
                             'min'      => 5,
-                            'max'      => 25,
+                            'max'      => 100,
                         ),
                     ),
                 ),
