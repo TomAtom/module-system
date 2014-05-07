@@ -37,7 +37,9 @@ class User extends \Zend\Db\RowGateway\RowGateway implements InputFilterAwareInt
         $dataFiltered['name'] = (isset($data['name'])) ? $data['name'] : null;
         $dataFiltered['surname']  = (isset($data['surname'])) ? $data['surname'] : null;
         $dataFiltered['email']  = (isset($data['email'])) ? $data['email'] : null;
-        $dataFiltered['last_login']  = (isset($data['last_login'])) ? $data['last_login'] : null;
+        if (array_key_exists('last_login', $data)) {
+            $dataFiltered['last_login']  =  $data['last_login'];
+        }
         if (array_key_exists('is_admin', $data)) {
             $dataFiltered['is_admin']  =  $data['is_admin'];
         }
@@ -51,6 +53,9 @@ class User extends \Zend\Db\RowGateway\RowGateway implements InputFilterAwareInt
         $userByEmail = $this->serviceLocator->get('System\Model\UserTable')->getUserByEmail($this->email);
         if (is_object($userByEmail) && $userByEmail->id_user != $this->id_user) {
             throw new \System\Exception\AlreadyExistsException();
+        }
+        if (!$this->rowExistsInDatabase()) {
+          $this->datetime_create = date('Y-m-d H:i:s');
         }
         parent::save();
     }
