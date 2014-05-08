@@ -20,7 +20,10 @@ class FlashMessages extends AbstractHelper
             $output .= '<div class="alert alert-success">'.$message.'</div>';
         }
         foreach ($this->flashMessenger->getErrorMessages() as $message) {
-            $output .= '<div class="alert alert-error">'.$message.'</div>';
+            $output .= '<div class="alert alert-danger">'.$message.'</div>';
+        }
+        foreach ($this->flashMessenger->getWarningMessages() as $message) {
+            $output .= '<div class="alert alert-warning">'.$message.'</div>';
         }
         foreach ($this->flashMessenger->getInfoMessages() as $message) {
             $output .= '<div class="alert alert-info">'.$message.'</div>';
