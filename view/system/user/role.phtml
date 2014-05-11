@@ -12,8 +12,9 @@ $form->setAttribute('action', $this->url(
     array(
         'action' => 'role',
         'id'     => $this->id,
+        'page' => $page
     )
-));
+) . '?' .  http_build_query($this->requestParams));
 $form->prepare();
 
 echo $this->form()->openTag($form);

@@ -13,10 +13,11 @@ return array(
             'user' => array(
                 'type'    => 'segment',
                 'options' => array(
-                    'route'    => '/user[/:action][/:id]',
+                    'route'    => '/user[/action/:action][/id/:id][/page/:page]',
                     'constraints' => array(
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id'     => '[0-9]+',
+                        'page'     => '[0-9]+',
                     ),
                     'defaults' => array(
                         'controller' => 'System\Controller\User',

@@ -13,7 +13,8 @@ $this->headTitle($title);
 $url = $this->url('user', array(
     'action' => 'delete',
     'id'     => $user->id_user,
-));
+    'page' => $page
+))  . '?' .  http_build_query($this->requestParams);
 ?>
 <form action="<?php echo $url; ?>" method="post">
 <div>

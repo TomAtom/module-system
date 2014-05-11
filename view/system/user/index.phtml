@@ -13,6 +13,17 @@ $this->headTitle($title);
 </p>
 <?php endif; ?>
 
+<?php
+$form = $this->form;
+$form->setAttribute('action', $this->url('user', array('action' => 'index')));
+$form->prepare();
+
+
+echo $this->form()->openTag($form);
+echo $this->formCollection($form);
+echo $this->form()->closeTag();
+?>
+
 <table class="table">
 <tr>
     <th>Jméno</th>
@@ -30,15 +41,31 @@ $this->headTitle($title);
     <td><?php echo $this->escapeHtml($user->last_login);?></td>
     <td>
         <?php if ($this->isAllowed('user', 'edit')): ?>
-            <a href="<?php echo $this->url('user', array('action'=>'edit', 'id' => $user->id_user));?>">Upravit</a>
+            <a href="<?php echo $this->url('user', array(
+                'action'=>'edit', 
+                'id' => $user->id_user,
+                'page' => $users->getCurrentPageNumber())) . '?' .  http_build_query($this->requestParams);?>"
+                >Upravit</a>
         <?php endif; ?>
         <?php if ($this->isAllowed('user', 'role')): ?>
-            <a href="<?php echo $this->url('user', array('action'=>'role', 'id' => $user->id_user));?>">Role</a>
+            <a href="<?php echo $this->url('user', array(
+                'action'=>'role', 
+                'id' => $user->id_user,
+                'page' => $users->getCurrentPageNumber())) . '?' .  http_build_query($this->requestParams);?>"
+                >Role</a>
         <?php endif; ?>
         <?php if ($this->isAllowed('user', 'delete')): ?>
-            <a href="<?php echo $this->url('user', array('action'=>'delete', 'id' => $user->id_user));?>">Smazat</a>
+            <a href="<?php echo $this->url('user', array(
+                'action'=>'delete', 
+                'id' => $user->id_user,
+                'page' => $users->getCurrentPageNumber())) . '?' .  http_build_query($this->requestParams);?>"
+                >Smazat</a>
         <?php endif; ?>
     </td>
 </tr>
 <?php endforeach; ?>
 </table>
+
+<?php
+echo $this->paginationControl($users, 'Sliding', 'system/system_pagination_control', array('route' => 'user', 'action' => 'index', 'requestParams' => $requestParams));
+?>
