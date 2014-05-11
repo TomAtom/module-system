@@ -11,6 +11,7 @@ CREATE TABLE `system_users` (
   `last_login` DATETIME NULL ,
   `is_admin` TINYINT(1) NOT NULL DEFAULT FALSE ,
   `is_active` TINYINT(1) NOT NULL DEFAULT TRUE ,
+  `datetime_create` DATETIME NOT NULL,
   PRIMARY KEY (`id_user`) ,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) )
 ENGINE = InnoDB
