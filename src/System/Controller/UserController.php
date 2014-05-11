@@ -35,11 +35,11 @@ class UserController extends AbstractActionController {
     if (isset($requestParams[$filterFormPrefix]['email']) && $requestParams[$filterFormPrefix]['email'] != '') {
       $userQuery->like('email', '%' . $requestParams[$filterFormPrefix]['email'] . '%');
     }
-
+    
     $paginatorAdapter = new \Zend\Paginator\Adapter\DbTableGateway($this->getUserTable()->getGateway(), $userQuery);
     $paginator = new \Zend\Paginator\Paginator($paginatorAdapter);
     $paginator->setCurrentPageNumber($page);
-    $paginator->setDefaultItemCountPerPage(2);
+    $paginator->setDefaultItemCountPerPage(10);
 
     if (array_key_exists($filterFormPrefix, $requestParams)) {
       $form->populateValues($requestParams[$filterFormPrefix]);
