@@ -58,6 +58,9 @@ return array(
         'template_path_stack' => array(
             'system' => __DIR__ . '/../view',
         ),
+        'template_map' => array(
+            'layout/system/unauthorizedAccess'  => __DIR__ . '/../view/layout/unauthorizedAccess.phtml',
+        ),
     ),
     'service_manager' => array(
         'abstract_factories' => array(

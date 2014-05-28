@@ -15,10 +15,10 @@ class AuthorizationService {
   public function doAuthorization(\Zend\Mvc\MvcEvent $e) {
     if (!$this->isCurrentUserAllowed($e->getRouteMatch()->getParam('controller'), $e->getRouteMatch()->getParam('action'))) {
       if ($this->existsControllerAction($e)) {
-        $url = $e->getRouter()->assemble(array(), array('name' => 'authentification'));
         $response = $e->getResponse();
-        $response->setStatusCode(302);
-        $response->getHeaders()->addHeaderLine('Location', $url);
+        $response->setStatusCode(403);
+        $vm = $e->getViewModel();
+        $vm->setTemplate('layout/system/unauthorizedAccess');
         $e->stopPropagation();
       }
     }

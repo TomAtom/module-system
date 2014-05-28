@@ -19,7 +19,7 @@ class AuthArea extends AbstractHelper
         if ($this->authService->hasIdentity()) {
             $html .= '<a href="'.$urlHelper('authentification', array('action' => 'logout')).'">Odhlásit</a>';
             $identity = $this->authService->getIdentity();
-            $html .= '&nbsp'.$identity->name.'&nbsp'.$identity->surname;
+            $html .= '&nbsp;&nbsp;'.$identity->name.'&nbsp;'.$identity->surname;
         } else {
             $html .= '<a href="'.$urlHelper('authentification', array('action' => 'login')).'">Přihlásit</a>';
         }
