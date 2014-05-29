@@ -15,11 +15,19 @@ class AuthorizationService {
   public function doAuthorization(\Zend\Mvc\MvcEvent $e) {
     if (!$this->isCurrentUserAllowed($e->getRouteMatch()->getParam('controller'), $e->getRouteMatch()->getParam('action'))) {
       if ($this->existsControllerAction($e)) {
-        $response = $e->getResponse();
-        $response->setStatusCode(403);
-        $vm = $e->getViewModel();
-        $vm->setTemplate('layout/system/unauthorizedAccess');
-        $e->stopPropagation();
+        if ($this->authentificationService->hasIdentity()) {
+          $response = $e->getResponse();
+          $response->setStatusCode(403);
+          $vm = $e->getViewModel();
+          $vm->setTemplate('layout/system/unauthorizedAccess');
+          $e->stopPropagation();
+        } else {
+          $url = $e->getRouter()->assemble(array(), array('name' => 'authentification'));
+          $response = $e->getResponse();
+          $response->setStatusCode(302);
+          $response->getHeaders()->addHeaderLine('Location', $url);
+          $e->stopPropagation();
+        }
       }
     }
   }
@@ -46,7 +54,7 @@ class AuthorizationService {
       return $object->canBeViewedByUser();
     }
   }
-  
+
   public function canCurrentUserChangeObject(\System\iObjectWithAuthorization $object) {
     if ($this->authentificationService->hasIdentity()) {
       return $object->canBeChangedByUser($this->authentificationService->getIdentity());
