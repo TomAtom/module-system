@@ -102,7 +102,7 @@ class Module {
             'AuthorizationService' => function($sm) {
               $acl = $sm->get('System\Acl');
               $authenticationService = $sm->get('AuthentificationService');
-              $service = new \System\AuthorizationService($acl, $authenticationService);
+              $service = new \System\Service\Authorization($acl, $authenticationService);
               return $service;
             },
         ),

@@ -8,7 +8,7 @@ class CanChange extends AbstractHelper {
 
   protected $authorizationService;
 
-  public function __construct(\System\AuthorizationService $authorizationService) {
+  public function __construct(\System\Service\Authorization $authorizationService) {
     $this->authorizationService = $authorizationService;
   }
 

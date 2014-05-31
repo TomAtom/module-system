@@ -9,7 +9,7 @@ class IsAllowed extends AbstractHelper {
     protected $routes;
 
 
-    public function __construct(\System\AuthorizationService $authorizationService, $routes) {
+    public function __construct(\System\Service\Authorization $authorizationService, $routes) {
         $this->authorizationService = $authorizationService;
         $this->routes = $routes;
     }

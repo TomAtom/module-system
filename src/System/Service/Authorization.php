@@ -1,8 +1,8 @@
 <?php
 
-namespace System;
+namespace System\Service;
 
-class AuthorizationService {
+class Authorization {
 
   protected $authentificationService;
   protected $acl;
