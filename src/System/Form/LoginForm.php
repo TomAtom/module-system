@@ -19,6 +19,9 @@ class LoginForm extends Form
     {
         parent::__construct($name);
         $this->setAttribute('method', 'post');
+        
+        $element = new \Zend\Form\Element\Hidden('return');
+        $this->add($element);
 
         $element = new \Zend\Form\Element\Text('email');
         $element->setLabel('Email');

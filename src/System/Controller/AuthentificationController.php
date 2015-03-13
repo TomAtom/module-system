@@ -16,22 +16,22 @@ class AuthentificationController extends AbstractActionController {
     if ($authService->hasIdentity()) {
       return $this->redirect()->toRoute('home');
     }
-    $form = new \System\Form\LoginForm();
+    $form = $this->getLoginForm();
     $request = $this->getRequest();
     if ($request->isPost()) {
       $form->setData($request->getPost());
       if ($form->isValid()) {
-        $this->processLogin($request->getPost('email'), $request->getPost('password'));
+        $this->processLogin($request);
       }
     }
     return array('form' => $form);
   }
 
-  private function processLogin($email, $password) {
+  private function processLogin(\Zend\Http\Request $request) {
     $sm = $this->getServiceLocator();
     $this->getAuthService()->getAdapter()
-            ->setIdentity($email)
-            ->setCredential($password);
+            ->setIdentity($request->getPost('email'))
+            ->setCredential($request->getPost('password'));
     $result = $this->getAuthService()->authenticate();
     if ($result->isValid()) {
       $storage = $this->getAuthService()->getStorage();
@@ -48,10 +48,14 @@ class AuthentificationController extends AbstractActionController {
       $storage->write($identity);
       $this->setUserLoginDateTime($this->getAuthService()->getIdentity()->id_user);
       $this->flashMessenger()->addSuccessMessage('Uživatel byl přihlášen');
-      $this->redirect()->toRoute('home');
+      $returnUri = $request->getPost('return');
+      if ($returnUri != '') {
+        $this->redirect()->toUrl($returnUri);
+      } else {
+        $this->redirect()->toRoute('home');
+      }
     } else {
       $this->flashMessenger()->addInfoMessage('Přihlášení se nezdařilo. Zadejte prosím platné přihlašovací údaje.');
-      $this->redirect();
     }
   }
 
@@ -66,6 +70,15 @@ class AuthentificationController extends AbstractActionController {
     $user = $userTable->getUser($idUser);
     $user->last_login = date('Y-m-d H:i:s');
     $user->save();
+  }
+  
+  private function getLoginForm() {
+    $form = new \System\Form\LoginForm();
+    $returnUri = $this->params()->fromQuery('return');
+    if ($returnUri) {
+      $form->get('return')->setValue($returnUri);
+    }
+    return $form;
   }
 
 }
