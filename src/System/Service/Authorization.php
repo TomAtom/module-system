@@ -23,7 +23,7 @@ class Authorization {
           $e->stopPropagation();
         } else {
           $returnUri = $e->getRequest()->getUriString();
-          $url = $e->getRouter()->assemble(array('ss' => 'ee'), array('name' => 'authentification'));
+          $url = $e->getRouter()->assemble(array(), array('name' => 'authentification'));
           $response = $e->getResponse();
           $response->setStatusCode(302);
           $response->getHeaders()->addHeaderLine('Location', $url . '?return=' . \urlencode($returnUri));
