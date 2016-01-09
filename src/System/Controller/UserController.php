@@ -16,6 +16,10 @@ class UserController extends AbstractActionController {
     }
     return $this->userTable;
   }
+  
+  public function getUserForm() {
+    return new \System\Form\UserForm();
+  }
 
   public function indexAction() {
     $page = $this->params()->fromRoute('page');
@@ -53,8 +57,7 @@ class UserController extends AbstractActionController {
   }
 
   public function addAction() {
-    $sm = $this->getServiceLocator();
-    $form = new \System\Form\UserForm();
+    $form = $this->getUserForm();
     $form->get('submit')->setValue('Přidat');
 
     $request = $this->getRequest();
@@ -62,17 +65,16 @@ class UserController extends AbstractActionController {
       if ($request->getPost('return')) {
         return $this->redirect()->toRoute('user');
       }
-      $user = $sm->get('System\Model\User');
+      $user = new \System\Model\User();
       $form->setInputFilter($user->getInputFilter());
       $form->setData($request->getPost());
 
       if ($form->isValid()) {
         try {
-          $user->populate($user->sanitizeData($form->getData()));
-          $user->save();
+          $user->exchangeArray($form->getData());
+          $this->getUserTable()->saveUser($user);
           $password = $form->get('password')->getValue();
-          $user->setPassword($password);
-          $user->save();
+          $this->getUserTable()->setPassword($user->id_user, $password);
           $this->flashMessenger()->addSuccessMessage('Uživatel přidán');
           return $this->redirect()->toRoute('user');
         } catch (\System\Exception\AlreadyExistsException $e) {
@@ -97,8 +99,7 @@ class UserController extends AbstractActionController {
     }
     $user = $this->getUserTable()->getUser($idUser);
 
-    $sm = $this->getServiceLocator();
-    $form = new \System\Form\UserForm();
+    $form = $this->getUserForm();
     $form->bind($user);
     $form->get('submit')->setAttribute('value', 'Uložit');
 
@@ -118,11 +119,10 @@ class UserController extends AbstractActionController {
 
       if ($form->isValid()) {
         try {
-          $form->getData()->save();
+          $this->getUserTable()->saveUser($user);
           $password = $form->get('password')->getValue();
           if ($password != '') {
-            $user->setPassword($password);
-            $user->save();
+            $this->getUserTable()->setPassword($user->id_user, $password);
           }
           $this->flashMessenger()->addSuccessMessage('Uživatel uložen');
           $url = $this->url()->fromRoute('user', array('page' => $page));
@@ -161,8 +161,7 @@ class UserController extends AbstractActionController {
 
       if (array_key_exists('yes', $del)) {
         $id = (int) $request->getPost('id');
-        $user = $this->getUserTable()->getUser($id);
-        $user->delete();
+        $this->getUserTable()->deleteUser($id);
         $this->flashMessenger()->addSuccessMessage('Uživatel smazán');
       }
       $url = $this->url()->fromRoute('user', array('page' => $page));
@@ -184,7 +183,7 @@ class UserController extends AbstractActionController {
     }
     $identity = $authenticationService->getIdentity();
     $user = $this->getUserTable()->getUser($identity->id_user);
-    $form = new \System\Form\UserForm();
+    $form = $this->getUserForm();
     $form->remove('is_admin');
     $form->remove('is_active');
     $form->bind($user);
@@ -202,11 +201,10 @@ class UserController extends AbstractActionController {
 
       if ($form->isValid()) {
         try {
-          $form->getData()->save();
+          $this->getUserTable()->saveUser($user);
           $password = $form->get('password')->getValue();
           if ($password != '') {
-            $user->setPassword($password);
-            $user->save();
+            $this->getUserTable()->setPassword($user->id_user, $password);
           }
           $this->flashMessenger()->addSuccessMessage('Uloženo');
           return $this->redirect()->toRoute('user', array('action' => 'profile'));

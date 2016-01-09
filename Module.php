@@ -42,12 +42,8 @@ class Module {
             'UserTableGateway' => function($sm) {
               $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
               $resultSetPrototype = new ResultSet();
-              $resultSetPrototype->setArrayObjectPrototype($sm->get('System\Model\User'));
+              $resultSetPrototype->setArrayObjectPrototype(new \System\Model\User());
               return new TableGateway('system_users', $dbAdapter, null, $resultSetPrototype);
-            },
-            'System\Model\User' => function($sm) {
-              $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-              return new User('id_user', 'system_users', $dbAdapter);
             },
             'System\Model\RoleTable' => function($sm) {
               $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');

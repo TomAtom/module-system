@@ -8,7 +8,7 @@ class UserTest extends PHPUnit_Framework_TestCase {
 
   public function testExchangeArraySetsPropertiesCorrectly() {
     $sm = \SystemTest\Bootstrap::getServiceManager();
-    $user = $sm->get('System\Model\User');
+    $user = new \System\Model\User();
     $data = array('id_user' => 1,
         'name' => 'name',
         'surname' => 'surname',
@@ -27,7 +27,7 @@ class UserTest extends PHPUnit_Framework_TestCase {
 
   public function testExchangeArraySetsPropertiesToNullIfKeysAreNotPresent() {
     $sm = \SystemTest\Bootstrap::getServiceManager();
-    $user = $sm->get('System\Model\User');
+    $user = new \System\Model\User();
     $data = array('id_user' => 1,
         'name' => 'name',
         'surname' => 'surname',
@@ -39,8 +39,8 @@ class UserTest extends PHPUnit_Framework_TestCase {
     $this->assertNull($user->name, '"name" should have defaulted to null');
     $this->assertNull($user->surname, '"surname" should have defaulted to null');
     $this->assertNull($user->email, '"email" should have defaulted to null');
-    $this->assertObjectNotHasAttribute('last_login', $user, '"llast_login" should not exist');
-    $this->assertObjectNotHasAttribute('is_admin', $user, '"is_admin" should not exist');
+    $this->assertNotNull($user->last_login, '"last_login" should not exist');
+    $this->assertNotNull($user->is_admin, '"is_admin" should not exist');
   }
 
 }

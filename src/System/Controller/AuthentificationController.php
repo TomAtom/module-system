@@ -69,7 +69,7 @@ class AuthentificationController extends AbstractActionController {
     $userTable = $this->getServiceLocator()->get('System\Model\UserTable');
     $user = $userTable->getUser($idUser);
     $user->last_login = date('Y-m-d H:i:s');
-    $user->save();
+    $userTable->saveUser($user);
   }
   
   private function getLoginForm() {
