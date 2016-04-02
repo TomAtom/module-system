@@ -3,21 +3,41 @@
 namespace System\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
 
 class UserController extends AbstractActionController {
 
-  protected $userTable;
+  /**
+   * @var \System\Model\UserRoleTable
+   */
+  private $userRoleTable;
 
-  public function getUserTable() {
-    if (!$this->userTable) {
-      $sm = $this->getServiceLocator();
-      $this->userTable = $sm->get('System\Model\UserTable');
-    }
+  /**
+   * @var \System\Model\RoleTable
+   */
+  private $roleTable;
+
+  /**
+   * @var \Zend\Authentication\AuthenticationService
+   */
+  private $authService;
+
+  /**
+   * @var System\Model\UserTable
+   */
+  private $userTable;
+
+  public function __construct(\System\Model\UserTable $userTable, \Zend\Authentication\AuthenticationService $authService, \System\Model\RoleTable $roleTable, \System\Model\UserRoleTable $userRoleTable) {
+    $this->userTable = $userTable;
+    $this->authService = $authService;
+    $this->roleTable = $roleTable;
+    $this->userRoleTable = $userRoleTable;
+  }
+
+  private function getUserTable() {
     return $this->userTable;
   }
-  
-  public function getUserForm() {
+
+  private function getUserForm() {
     return new \System\Form\UserForm();
   }
 
@@ -39,7 +59,7 @@ class UserController extends AbstractActionController {
     if (isset($requestParams[$filterFormPrefix]['email']) && $requestParams[$filterFormPrefix]['email'] != '') {
       $userQuery->like('email', '%' . $requestParams[$filterFormPrefix]['email'] . '%');
     }
-    
+
     $paginatorAdapter = new \Zend\Paginator\Adapter\DbTableGateway($this->getUserTable()->getGateway(), $userQuery);
     $paginator = new \Zend\Paginator\Paginator($paginatorAdapter);
     $paginator->setCurrentPageNumber($page);
@@ -176,12 +196,10 @@ class UserController extends AbstractActionController {
   }
 
   public function profileAction() {
-    $sm = $this->getServiceLocator();
-    $authenticationService = $sm->get('AuthentificationService');
-    if (!$authenticationService->hasIdentity()) {
+    if (!$this->authService->hasIdentity()) {
       throw new \Exception('uzivatel bez identity nemuze editovat svuj profil');
     }
-    $identity = $authenticationService->getIdentity();
+    $identity = $this->authService->getIdentity();
     $user = $this->getUserTable()->getUser($identity->id_user);
     $form = $this->getUserForm();
     $form->remove('is_admin');
@@ -226,12 +244,9 @@ class UserController extends AbstractActionController {
     $page = $this->params()->fromRoute('page');
     $requestParams = $this->params()->fromQuery();
     $idUser = (int) $this->params()->fromRoute('id', 0);
-    $sm = $this->getServiceLocator();
-    $roleTable = $sm->get('System\Model\RoleTable');
-    $userRoleTable = $sm->get('System\Model\UserRoleTable');
     $form = new \System\Form\UserRoles('role');
-    $form->setRolesTypes($roleTable->fetchAll());
-    $form->setRolesIds($userRoleTable->getRolesIdsByUser($idUser));
+    $form->setRolesTypes($this->roleTable->fetchAll());
+    $form->setRolesIds($this->userRoleTable->getRolesIdsByUser($idUser));
     $request = $this->getRequest();
     if ($request->isPost()) {
       if ($request->getPost('return')) {

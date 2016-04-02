@@ -101,6 +101,7 @@ class Module {
               $service = new \System\Service\Authorization($acl, $authenticationService);
               return $service;
             },
+            'System\Form\RightsForm' => 'System\Form\Factory\RightsFormFactory'
         ),
     );
   }

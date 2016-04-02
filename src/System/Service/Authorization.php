@@ -74,6 +74,13 @@ class Authorization {
         $return = true;
       }
     }
+    if (array_key_exists($e->getRouteMatch()->getParam('controller'), $config['controllers']['factories'])) {
+      $controllerFactoryClass = $config['controllers']['factories'][$e->getRouteMatch()->getParam('controller')];
+      $classMethods = get_class_methods($controllerFactoryClass::getCreatedClassName());
+      if (in_array($e->getRouteMatch()->getParam('action') . 'Action', $classMethods)) {
+        $return = true;
+      }
+    }
     return $return;
   }
 

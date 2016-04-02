@@ -6,9 +6,29 @@ use Zend\Mvc\Controller\AbstractActionController;
 
 class AuthentificationController extends AbstractActionController {
 
+  /**
+   * @var \System\Model\UserTable
+   */
+  private $userTable;
+
+  /**
+   * @var \System\Model\UserRoleTable
+   */
+  private $userRoleTable;
+
+  /**
+   * @var \Zend\Authentication\AuthenticationService
+   */
+  private $authenticationService;
+
+  public function __construct(\Zend\Authentication\AuthenticationService $authenticationService, \System\Model\UserRoleTable $userRoleTable, \System\Model\UserTable $userTable) {
+    $this->authenticationService = $authenticationService;
+    $this->userRoleTable = $userRoleTable;
+    $this->userTable = $userTable;
+  }
+
   public function getAuthService() {
-    return $this->authservice = $this->getServiceLocator()
-            ->get('AuthentificationService');
+    return $this->authenticationService;
   }
 
   public function loginAction() {
@@ -28,7 +48,6 @@ class AuthentificationController extends AbstractActionController {
   }
 
   private function processLogin(\Zend\Http\Request $request) {
-    $sm = $this->getServiceLocator();
     $this->getAuthService()->getAdapter()
             ->setIdentity($request->getPost('email'))
             ->setCredential($request->getPost('password'));
@@ -43,8 +62,7 @@ class AuthentificationController extends AbstractActionController {
         $this->flashMessenger()->addInfoMessage('Uživatel nemá povoleno přihlášení.');
         return $this->redirect('authentification');
       }
-      $userRoleTable = $sm->get('System\Model\UserRoleTable');
-      $identity->rolesIds = $userRoleTable->getRolesIdsByUser($identity->id_user);
+      $identity->rolesIds = $this->userRoleTable->getRolesIdsByUser($identity->id_user);
       $storage->write($identity);
       $this->setUserLoginDateTime($this->getAuthService()->getIdentity()->id_user);
       $this->flashMessenger()->addSuccessMessage('Uživatel byl přihlášen');
@@ -66,10 +84,9 @@ class AuthentificationController extends AbstractActionController {
   }
 
   private function setUserLoginDateTime($idUser) {
-    $userTable = $this->getServiceLocator()->get('System\Model\UserTable');
-    $user = $userTable->getUser($idUser);
+    $user = $this->userTable->getUser($idUser);
     $user->last_login = date('Y-m-d H:i:s');
-    $userTable->saveUser($user);
+    $this->userTable->saveUser($user);
   }
   
   private function getLoginForm() {

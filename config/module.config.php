@@ -2,11 +2,11 @@
 
 return array(
     'controllers' => array(
-        'invokables' => array(
-            'System\Controller\User' => 'System\Controller\UserController',
-            'System\Controller\Authentification' => 'System\Controller\AuthentificationController',
-            'System\Controller\Role' => 'System\Controller\RoleController',
-        ),
+        'factories' => [
+            'System\Controller\Role' => 'System\Controller\Factory\RoleController',
+            'System\Controller\Authentification' => 'System\Controller\Factory\AuthentificationController',
+            'System\Controller\User' => 'System\Controller\Factory\UserController',
+        ]
     ),
     'router' => array(
         'routes' => array(
