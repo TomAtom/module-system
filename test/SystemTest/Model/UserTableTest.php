@@ -11,7 +11,7 @@ class UserTableTest extends PHPUnit_Framework_TestCase {
 
   public function testFetchAllReturnsAllUsers() {
     $resultSet = new ResultSet();
-    $mockTableGateway = $this->getMock('Zend\Db\TableGateway\TableGateway', array('select'), array(), '', false);
+    $mockTableGateway = $this->createMock('Zend\Db\TableGateway\TableGateway', array('select'), array(), '', false);
     $mockTableGateway->expects($this->once())
             ->method('select')
             ->with()
