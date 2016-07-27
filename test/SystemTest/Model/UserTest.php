@@ -7,7 +7,6 @@ use PHPUnit_Framework_TestCase;
 class UserTest extends PHPUnit_Framework_TestCase {
 
   public function testExchangeArraySetsPropertiesCorrectly() {
-    $sm = \SystemTest\Bootstrap::getServiceManager();
     $user = new \System\Model\User();
     $data = array('id_user' => 1,
         'name' => 'name',
@@ -26,7 +25,6 @@ class UserTest extends PHPUnit_Framework_TestCase {
   }
 
   public function testExchangeArraySetsPropertiesToNullIfKeysAreNotPresent() {
-    $sm = \SystemTest\Bootstrap::getServiceManager();
     $user = new \System\Model\User();
     $data = array('id_user' => 1,
         'name' => 'name',

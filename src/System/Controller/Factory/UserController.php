@@ -2,16 +2,13 @@
 
 namespace System\Controller\Factory;
 
-class UserController implements \Zend\ServiceManager\FactoryInterface, \System\Controller\FactoryInterface {
+class UserController implements \Zend\ServiceManager\Factory\FactoryInterface, \System\Controller\FactoryInterface {
 
-  private $serviceLocator;
-
-  public function createService(\Zend\ServiceManager\ServiceLocatorInterface $serviceLocator) {
-    $this->serviceLocator = $serviceLocator;
-    $roleTable = $serviceLocator->getServiceLocator()->get('System\Model\RoleTable');
-    $userRoleTable = $serviceLocator->getServiceLocator()->get('System\Model\UserRoleTable');
-    $userTable = $serviceLocator->getServiceLocator()->get('System\Model\UserTable');
-    $authService = $serviceLocator->getServiceLocator()->get('AuthentificationService');
+  public function __invoke(\Interop\Container\ContainerInterface $container, $requestedName, array $options = null) {
+    $roleTable = $container->get('System\Model\RoleTable');
+    $userRoleTable = $container->get('System\Model\UserRoleTable');
+    $userTable = $container->get('System\Model\UserTable');
+    $authService = $container->get('AuthentificationService');
     return new \System\Controller\UserController($userTable, $authService, $roleTable, $userRoleTable);
   }
 

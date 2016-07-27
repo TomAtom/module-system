@@ -15,8 +15,10 @@ class Acl extends \Zend\Permissions\Acl\Acl {
   }
 
   public function setResources($config) {
-    foreach ($config['controllers']['invokables'] as $controllerAlias => $controllerClass) {
-      $this->addResource(new Resource($controllerAlias));
+    if (\array_key_exists('invokables', $config['controllers'])) {
+      foreach ($config['controllers']['invokables'] as $controllerAlias => $controllerClass) {
+        $this->addResource(new Resource($controllerAlias));
+      }
     }
     foreach ($config['controllers']['factories'] as $controllerAlias => $controllerFactoryClass) {
       $this->addResource(new Resource($controllerAlias));

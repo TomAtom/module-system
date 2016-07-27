@@ -2,15 +2,7 @@
 
 namespace SystemTest\Controller;
 
-use SystemTest\Bootstrap;
-use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
-use System\Controller\UserController;
-use Zend\Http\Request;
-use Zend\Mvc\MvcEvent;
-use Zend\Mvc\Router\RouteMatch;
-use PHPUnit_Framework_TestCase;
-
-class UserControllerTest extends PHPUnit_Framework_TestCase {
+class UserControllerTest extends \Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase {
 
   protected $controller;
   protected $request;
@@ -18,36 +10,25 @@ class UserControllerTest extends PHPUnit_Framework_TestCase {
   protected $routeMatch;
   protected $event;
 
-  protected function setUp() {
-    $serviceManager = Bootstrap::getServiceManager();
-    $roleTable = $serviceManager->get('System\Model\RoleTable');
-    $userRoleTable = $serviceManager->get('System\Model\UserRoleTable');
-    $userTable = $serviceManager->get('System\Model\UserTable');
-    $authService = $serviceManager->get('AuthentificationService');
-    $this->controller = new UserController($userTable, $authService, $roleTable, $userRoleTable);
-    $this->request = new Request();
-    $this->routeMatch = new RouteMatch(array('controller' => 'System\Controller\User'));
-    $this->event = new MvcEvent();
-    $config = $serviceManager->get('Config');
-    $routerConfig = isset($config['router']) ? $config['router'] : array();
-    $router = HttpRouter::factory($routerConfig);
-
-    $this->event->setRouter($router);
-    $this->event->setRouteMatch($this->routeMatch);
-    $this->controller->setEvent($this->event);
-    $this->controller->setServiceLocator($serviceManager);
+  public function setUp() {
+    // The module configuration should still be applicable for tests.
+    // You can override configuration here with test case specific values,
+    // such as sample view templates, path stacks, module_listener_options,
+    // etc.
+    $configOverrides = [];
+    $this->setApplicationConfig(\Zend\Stdlib\ArrayUtils::merge(
+                    // Grabbing the full application configuration:
+                    include __DIR__ . '/../../../../../config/application.config.php', $configOverrides
+    ));
+    parent::setUp();
   }
-  
+
   /**
    * @test
    */
-  public function indexActionCanNoBeAccessedWithUnlogedUser() {
-//    $serviceManager = Bootstrap::getServiceManager();
-//    chdir(dirname(dirname(dirname(dirname(dirname(__DIR__))))));
-//    $authorizationService = $serviceManager->get('AuthorizationService');
-//    $this->routeMatch->setParam('action', 'index');
-//    $authorizationService->doAuthorization($this->event);
-//    $this->assertEquals(302, $this->event->getResponse()->getStatusCode());
+  public function indexActionCanNotBeAccessedWithUnlogedUser() {
+    $this->dispatch('/user');
+    $this->assertResponseStatusCode(302);
   }
 
   /**
@@ -55,83 +36,92 @@ class UserControllerTest extends PHPUnit_Framework_TestCase {
    */
   public function loggingInShouldBeOk() {
     $this->login();
-    $serviceManager = Bootstrap::getServiceManager();
-    $this->assertTrue($serviceManager->get('AuthentificationService')->hasIdentity());
+    $serviceLocator = $this->getApplicationServiceLocator();
+    $this->assertTrue($serviceLocator->get('AuthentificationService')->hasIdentity());
   }
 
   protected function login() {
-    $serviceManager = Bootstrap::getServiceManager();
-    $authService = $serviceManager->get('AuthentificationService');
-    $userRoleTable = $serviceManager->get('System\Model\UserRoleTable');
-    $userTable = $serviceManager->get('System\Model\UserTable');
-    $controller = new \System\Controller\AuthentificationController($authService, $userRoleTable, $userTable);
-    $controller->setEvent($this->event);
     $form = new \System\Form\LoginForm();
     $form->prepare();
-    $this->request->setPost(new \Zend\Stdlib\Parameters(
+    $this->dispatch('/authentification/login', 'POST',
             array(
-        'email' => 'admin@admin.cz',
-        'password' => 'admin@admin.cz',
-        'csrf' => $form->get('csrf')->getValue(),
-        'submit' => 'Přihlásit'
-    )));
-    $this->request->setMethod('POST');
-    $this->routeMatch->setParam('action', 'login');
-    $result = $controller->dispatch($this->request);
-    $response = $controller->getResponse();
+      'email' => 'admin@admin.cz',
+      'password' => 'admin@admin.cz',
+      'csrf' => $form->get('csrf')->getValue(),
+      'submit' => 'Přihlásit',
+    ));
+  }
+
+  protected function mockLogin() {
+    $userSessionModel = new class {
+
+      public $id_user = '1';
+      public $name = 'a';
+      public $surname = 'bbb';
+      public $email = 'admin@admin.cz';
+      public $last_login = '2016-07-25 22:07:55';
+      public $is_admin = '1';
+      public $is_active = '1';
+      public $rolesIds = ['2'];
+    };
+
+    $authService = $this->createMock('\Zend\Authentication\AuthenticationService');
+    $authService->expects($this->any())
+            ->method('getIdentity')
+            ->will($this->returnValue($userSessionModel));
+
+    $authService->expects($this->any())
+            ->method('hasIdentity')
+            ->will($this->returnValue(true));
+
+    $this->getApplicationServiceLocator()->setAllowOverride(true);
+    $this->getApplicationServiceLocator()->setService('AuthentificationService', $authService);
+    $this->getApplicationServiceLocator()->setAllowOverride(false);
   }
 
   /**
    * @test
    */
   public function indexActionCanBeAccessed() {
-    $this->routeMatch->setParam('action', 'index');
-    $result = $this->controller->dispatch($this->request);
-    $response = $this->controller->getResponse();
-    $this->assertEquals(200, $response->getStatusCode());
+    $this->mockLogin();
+    $this->dispatch('/user');
+    $this->assertResponseStatusCode(200);
   }
 
   /**
    * @test
    */
   public function addActionCanBeAccessed() {
-    $this->routeMatch->setParam('action', 'add');
-    $result = $this->controller->dispatch($this->request);
-    $response = $this->controller->getResponse();
-    $this->assertEquals(200, $response->getStatusCode());
+    $this->mockLogin();
+    $this->dispatch('/user/action/add');
+    $this->assertResponseStatusCode(200);
   }
 
   /**
    * @test
    */
   public function editActionCanBeAccessed() {
-    $this->routeMatch->setParam('action', 'edit');
-    $this->routeMatch->setParam('id', '1');
-    $result = $this->controller->dispatch($this->request);
-    $response = $this->controller->getResponse();
-    $this->assertEquals(200, $response->getStatusCode());
+    $this->mockLogin();
+    $this->dispatch('/user/action/edit/id/1');
+    $this->assertResponseStatusCode(200);
   }
 
   /**
    * @test
    */
   public function deleteCanBeAccessed() {
-    $this->routeMatch->setParam('action', 'delete');
-    $this->routeMatch->setParam('id', '1');
-    $result = $this->controller->dispatch($this->request);
-    $response = $this->controller->getResponse();
-    $this->assertEquals(200, $response->getStatusCode());
+    $this->mockLogin();
+    $this->dispatch('/user/action/delete/id/1');
+    $this->assertResponseStatusCode(200);
   }
 
   /**
    * @test
    */
   public function profileActionCanBeAccessed() {
-    $this->login();
-    $this->routeMatch->setParam('action', 'profile');
-    $result = $this->controller->dispatch($this->request);
-    $response = $this->controller->getResponse();
-    $this->assertEquals(200, $response->getStatusCode());
+    $this->mockLogin();
+    $this->dispatch('/user/action/profile');
+    $this->assertResponseStatusCode(200);
   }
 
 }
