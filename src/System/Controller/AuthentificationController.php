@@ -79,7 +79,7 @@ class AuthentificationController extends AbstractActionController {
 
   public function logoutAction() {
     $this->getAuthService()->clearIdentity();
-    $this->flashmessenger()->addInfoMessage('Ohlášeno');
+    $this->flashmessenger()->addInfoMessage('Odhlášeno');
     return $this->redirect()->toRoute('authentification');
   }
 
