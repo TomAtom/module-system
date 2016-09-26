@@ -62,7 +62,7 @@ class Module {
           return $authService;
         },
         'System\Service\ErrorHandling' => function($sm) {
-          $filename = 'exceptions_' . date('F') . '.log';
+          $filename = 'exceptions_' . date('Y') . '_' . date('m') . '.log';
           $logger = new Logger();
           $writer = new LogWriterStream('./data/logs/' . $filename);
           $logger->addWriter($writer);
