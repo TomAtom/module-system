@@ -133,7 +133,7 @@ class Module {
               ->doAuthorization($e);
     }, 100);
 
-    $eventManager->attach('dispatch.error',
+    $eventManager->attach(\Zend\Mvc\MvcEvent::EVENT_DISPATCH_ERROR,
             function($event) {
       $exception = $event->getResult()->exception;
       if ($exception) {
