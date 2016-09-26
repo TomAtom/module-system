@@ -144,9 +144,4 @@ class Module {
     });
   }
 
-  public function onDispatchError(\Zend\Mvc\MvcEvent $e) {
-    $vm = $e->getViewModel();
-    $vm->setTemplate('layout/layoutDetail');
-  }
-
 }
