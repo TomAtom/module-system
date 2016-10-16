@@ -2,19 +2,19 @@
 
 namespace System\Form\Factory;
 
-class RightsFormFactory implements \Zend\ServiceManager\FactoryInterface {
+class RightsFormFactory implements \Zend\ServiceManager\Factory\FactoryInterface {
   
-  protected $serviceLocator;
-
-  public function createService(\Zend\ServiceManager\ServiceLocatorInterface $serviceLocator) {
-    $this->serviceLocator = $serviceLocator;
+  protected $serviceContainer;
+  
+  public function __invoke(\Interop\Container\ContainerInterface $container, $requestedName, array $options = null) {
+    $this->serviceContainer = $container;
     $form = new \System\Form\RightsForm();
     $form->setControllers($this->getControllers());
     return $form;
   }
 
   protected function getControllers(): array {
-    $config = $this->serviceLocator->get('Config');
+    $config = $this->serviceContainer->get('Config');
     $controllers = $config['controllers']['invokables'];
     foreach ($config['controllers']['factories'] as $controllerName => $controllerFactoryName) {
       if (is_subclass_of($controllerFactoryName, '\System\Controller\FactoryInterface')) {
