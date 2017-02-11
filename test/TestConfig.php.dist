@@ -1,16 +1,40 @@
 <?php
 return array(
-    'modules' => array(
-        'System',
-        'Application'//to je tu jen kvuli tomu, ze po loginu jse jde na routu "home"
+  'modules' => array(
+    'Zend\Session',
+    'Zend\Mvc\Plugin\Prg',
+    'Zend\Mvc\Plugin\Identity',
+    'Zend\Mvc\Plugin\FlashMessenger',
+    'Zend\Mvc\Plugin\FilePrg',
+    'Zend\I18n',
+    'Zend\Mvc\I18n',
+    'Zend\Mvc\Console',
+    'Zend\Log',
+    'Zend\Form',
+    'Zend\Db',
+    'Zend\Cache',
+    'Zend\Router',
+    'Zend\Validator',
+    'Application',
+    'System',
+  ),
+  'module_listener_options' => array(
+    'config_glob_paths' => array(
+      realpath(__DIR__) . '/../../../config/autoload/{{,*.}global,{,*.}local}.php',
     ),
-    'module_listener_options' => array(
-        'config_glob_paths'    => array(
-            '../../../config/autoload/{,*.}{global,local}.php',
-        ),
-        'module_paths' => array(
-            'module',
-            'vendor',
-        ),
+    'module_paths' => array(
+      realpath(__DIR__) . '/../../../module',
+      realpath(__DIR__) . '/../../../vendor',
     ),
+
+    'config_cache_enabled' => false,
+
+    'config_cache_key' => "application.config.cache",
+
+    'module_map_cache_enabled' => false,
+
+    'module_map_cache_key' => "application.module.cache",
+
+    'cache_dir' => "./data/cache/modulecache",
+  ),
 );

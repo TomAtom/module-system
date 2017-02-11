@@ -8,7 +8,7 @@ chdir(\dirname(\dirname(\dirname(__DIR__))));
 class Bootstrap {
 
   public static function init() {
-    include 'vendor/autoload.php';
+    include __DIR__ . '/../../../vendor/autoload.php';
   }
 
 }

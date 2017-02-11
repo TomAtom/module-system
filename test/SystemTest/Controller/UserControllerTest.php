@@ -18,7 +18,7 @@ class UserControllerTest extends \Zend\Test\PHPUnit\Controller\AbstractHttpContr
     $configOverrides = [];
     $this->setApplicationConfig(\Zend\Stdlib\ArrayUtils::merge(
                     // Grabbing the full application configuration:
-                    include __DIR__ . '/../../../../../config/application.config.php', $configOverrides
+                    include __DIR__ . '/../../TestConfig.php.dist', $configOverrides
     ));
     parent::setUp();
   }
