@@ -2,9 +2,7 @@
 
 namespace SystemTest\Model;
 
-use PHPUnit_Framework_TestCase;
-
-class UserTest extends PHPUnit_Framework_TestCase {
+class UserTest extends \PHPUnit\Framework\TestCase {
 
   public function testExchangeArraySetsPropertiesCorrectly() {
     $user = new \System\Model\User();

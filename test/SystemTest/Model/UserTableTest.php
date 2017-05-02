@@ -3,11 +3,9 @@
 namespace SystemTest\Model;
 
 use System\Model\UserTable;
-use System\Model\User;
 use Zend\Db\ResultSet\ResultSet;
-use PHPUnit_Framework_TestCase;
 
-class UserTableTest extends PHPUnit_Framework_TestCase {
+class UserTableTest extends \PHPUnit\Framework\TestCase {
 
   public function testFetchAllReturnsAllUsers() {
     $resultSet = new ResultSet();
