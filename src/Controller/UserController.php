@@ -86,12 +86,12 @@ class UserController extends AbstractActionController {
         return $this->redirect()->toRoute('user');
       }
       $user = new \System\Model\User();
+      $form->bind($user);
       $form->setInputFilter($user->getInputFilter());
       $form->setData($request->getPost());
 
       if ($form->isValid()) {
         try {
-          $user->exchangeArray($form->getData());
           $this->getUserTable()->saveUser($user);
           $password = $form->get('password')->getValue();
           $this->getUserTable()->setPassword($user->id_user, $password);
