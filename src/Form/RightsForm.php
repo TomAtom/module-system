@@ -32,17 +32,17 @@ class RightsForm extends Form {
     $this->add($element);
   }
 
-  public function setRights($rights) {
+  public function setRights(\Iterator $rights) {
     foreach ($rights as $right) {
       $controllerContainer = $this->get('rights')->get($right->controller);
-      if (is_object($controllerContainer)) {
-        $element = $controllerContainer->get($right->action);
-        if (is_object($element)) {
-          $element->setChecked(true);
+      if (is_object($controllerContainer) && $controllerContainer->has($right->action)) {
+          $element = $controllerContainer->get($right->action);
+          if (is_object($element)) {
+            $element->setChecked(true);
+          }
         }
       }
     }
-  }
 
   protected function getControllerActions($controllerClass): array {
     $methods = get_class_methods($controllerClass);
