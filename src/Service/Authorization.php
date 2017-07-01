@@ -75,8 +75,7 @@ class Authorization {
       }
     }
     if (array_key_exists($e->getRouteMatch()->getParam('controller'), $config['controllers']['factories'])) {
-      $controllerFactoryClass = $config['controllers']['factories'][$e->getRouteMatch()->getParam('controller')];
-      $classMethods = get_class_methods($controllerFactoryClass::getCreatedClassName());
+      $classMethods = get_class_methods($e->getRouteMatch()->getParam('controller'));
       if (in_array($e->getRouteMatch()->getParam('action') . 'Action', $classMethods)) {
         $return = true;
       }
