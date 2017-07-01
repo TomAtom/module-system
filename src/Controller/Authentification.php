@@ -4,7 +4,7 @@ namespace System\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 
-class AuthentificationController extends AbstractActionController {
+class Authentification extends AbstractActionController {
 
   /**
    * @var \System\Model\UserTable

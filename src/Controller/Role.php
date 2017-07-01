@@ -3,9 +3,8 @@
 namespace System\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
-use System\Model\Role;
 
-class RoleController extends AbstractActionController {
+class Role extends AbstractActionController {
 
   /**
    * @var \System\Model\RightTable
@@ -49,7 +48,7 @@ class RoleController extends AbstractActionController {
       if ($request->getPost('return')) {
         return $this->redirect()->toRoute('role');
       }
-      $role = new Role();
+      $role = new \System\Model\Role();
       $form->setInputFilter($role->getInputFilter());
       $form->setData($request->getPost());
 

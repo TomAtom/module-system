@@ -2,9 +2,9 @@
 return array(
   'controllers' => array(
     'factories' => [
-      'System\Controller\Role' => 'System\Controller\Factory\RoleController',
-      'System\Controller\Authentification' => 'System\Controller\Factory\AuthentificationController',
-      'System\Controller\User' => 'System\Controller\Factory\UserController',
+      System\Controller\Role::class => \System\Controller\Factory\RoleController::class,
+      \System\Controller\Authentification::class => \System\Controller\Factory\AuthentificationController::class,
+      \System\Controller\User::class => \System\Controller\Factory\UserController::class,
     ]
   ),
   'router' => array(
@@ -19,7 +19,7 @@ return array(
             'page' => '[0-9]+',
           ),
           'defaults' => array(
-            'controller' => 'System\Controller\User',
+            'controller' => \System\Controller\User::class,
             'action' => 'index',
           ),
         ),
@@ -32,7 +32,7 @@ return array(
             'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
           ),
           'defaults' => array(
-            'controller' => 'System\Controller\Authentification',
+            'controller' => \System\Controller\Authentification::class,
             'action' => 'login',
           ),
         ),
@@ -46,7 +46,7 @@ return array(
             'id' => '[0-9]+',
           ),
           'defaults' => array(
-            'controller' => 'System\Controller\Role',
+            'controller' => \System\Controller\Role::class,
             'action' => 'index',
           ),
         ),

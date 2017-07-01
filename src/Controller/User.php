@@ -4,7 +4,7 @@ namespace System\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 
-class UserController extends AbstractActionController {
+class User extends AbstractActionController {
 
   /**
    * @var \System\Model\UserRoleTable
