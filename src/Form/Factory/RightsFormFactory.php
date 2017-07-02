@@ -15,11 +15,14 @@ class RightsFormFactory implements \Zend\ServiceManager\Factory\FactoryInterface
 
   protected function getControllers(): array {
     $config = $this->serviceContainer->get('Config');
+    $authorizationService = $this->serviceContainer->get('AuthorizationService');
     $controllers = $config['controllers']['invokables'];
     foreach ($config['controllers']['factories'] as $controllerName => $controllerFactoryName) {
       $controllers[$controllerName] = $controllerName;
     }
-    return $controllers;
+    return \array_filter($controllers, function (string $controller) use ($authorizationService) {
+      return $authorizationService->isControlerUnderAuthorizationControl($controller);
+    });
   }
 
 }

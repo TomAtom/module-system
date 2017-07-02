@@ -4,6 +4,15 @@ namespace System\Service;
 
 class Authorization {
 
+  const MODULES = [
+    'Application',
+    'System',
+    'Guestbook',
+    'Photogallery',
+    'Article',
+    'Discuss'
+  ];
+
   protected $authentificationService;
   protected $acl;
 
@@ -13,21 +22,24 @@ class Authorization {
   }
 
   public function doAuthorization(\Zend\Mvc\MvcEvent $e) {
-    if (!$this->isCurrentUserAllowed($e->getRouteMatch()->getParam('controller'), $e->getRouteMatch()->getParam('action'))) {
-      if ($this->existsControllerAction($e)) {
-        if ($this->authentificationService->hasIdentity()) {
-          $response = $e->getResponse();
-          $response->setStatusCode(403);
-          $vm = $e->getViewModel();
-          $vm->setTemplate('layout/system/unauthorizedAccess');
-          $e->stopPropagation();
-        } else {
-          $returnUri = $e->getRequest()->getUriString();
-          $url = $e->getRouter()->assemble(array(), array('name' => 'authentification'));
-          $response = $e->getResponse();
-          $response->setStatusCode(302);
-          $response->getHeaders()->addHeaderLine('Location', $url . '?return=' . \urlencode($returnUri));
-          $e->stopPropagation();
+    if ($this->isControlerUnderAuthorizationControl($e->getRouteMatch()->getParam('controller'))) {
+      if (!$this->isCurrentUserAllowed($e->getRouteMatch()->getParam('controller'),
+                      $e->getRouteMatch()->getParam('action'))) {
+        if ($this->existsControllerAction($e)) {
+          if ($this->authentificationService->hasIdentity()) {
+            $response = $e->getResponse();
+            $response->setStatusCode(403);
+            $vm = $e->getViewModel();
+            $vm->setTemplate('layout/system/unauthorizedAccess');
+            $e->stopPropagation();
+          } else {
+            $returnUri = $e->getRequest()->getUriString();
+            $url = $e->getRouter()->assemble(array(), array('name' => 'authentification'));
+            $response = $e->getResponse();
+            $response->setStatusCode(302);
+            $response->getHeaders()->addHeaderLine('Location', $url . '?return=' . \urlencode($returnUri));
+            $e->stopPropagation();
+          }
         }
       }
     }
@@ -81,6 +93,14 @@ class Authorization {
       }
     }
     return $return;
+  }
+
+  public function isControlerUnderAuthorizationControl(string $controllerName): bool {
+    $controllerNamespaceParts = \explode('\\', $controllerName);
+    if (isset($controllerNamespaceParts[0]) && \in_array($controllerNamespaceParts[0], self::MODULES)) {
+      return true;
+    }
+    return false;
   }
 
 }
