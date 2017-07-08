@@ -56,7 +56,7 @@ class Authorization {
       }
       return $isAllowed;
     } else {
-      return $this->acl->isAllowed(\System\Model\RoleTable::ID_ROLE_GUEST, $controller, $action);
+      return $this->acl->isAllowed(\System\Service\RoleManager::ID_ROLE_GUEST, $controller, $action);
     }
   }
 

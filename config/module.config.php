@@ -1,8 +1,13 @@
 <?php
+
+namespace System;
+
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+
 return array(
   'controllers' => array(
     'factories' => [
-      System\Controller\Role::class => \System\Controller\Factory\RoleController::class,
+      \System\Controller\Role::class => \System\Controller\Factory\RoleController::class,
       \System\Controller\Authentification::class => \System\Controller\Factory\AuthentificationController::class,
       \System\Controller\User::class => \System\Controller\Factory\UserController::class,
     ]
@@ -76,4 +81,18 @@ return array(
       ),
     ),
   ),
+  'doctrine' => [
+    'driver' => [
+      __NAMESPACE__ . '_driver' => [
+        'class' => AnnotationDriver::class,
+        'cache' => 'array',
+        'paths' => [__DIR__ . '/../src/Entity']
+      ],
+      'orm_default' => [
+        'drivers' => [
+          __NAMESPACE__ . '\Entity' => __NAMESPACE__ . '_driver'
+        ]
+      ]
+    ]
+  ],
 );

@@ -7,8 +7,7 @@ use Zend\Permissions\Acl\Resource\GenericResource as Resource;
 
 class Acl extends \Zend\Permissions\Acl\Acl {
 
-  public function setRoles(\System\Model\RoleTable $roleTable) {
-    $roles = $roleTable->fetchAll();
+  public function setRoles(array $roles) {
     foreach ($roles as $role) {
       $this->addRole(new Role($role->id_role));
     }
@@ -25,14 +24,14 @@ class Acl extends \Zend\Permissions\Acl\Acl {
     }
   }
 
-  public function setRights(\System\Model\RightTable $rightTable) {
-    $rights = $rightTable->fetchAll();
+  public function setRights(array $rights) {
     foreach ($rights as $right) {
       if ($this->hasResource($right->controller)) {
-        $this->allow($right->id_role, $right->controller, $right->action);
+        $role = $right->getRole();
+        $this->allow($role->getIdRole(), $right->controller, $right->action);
       }
     }
-    $this->allow(null, 'System\Controller\Authentification', null);
+    $this->allow(null, \System\Controller\Authentification::class, null);
   }
 
 }

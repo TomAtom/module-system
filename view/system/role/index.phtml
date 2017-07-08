@@ -27,7 +27,7 @@ $this->headTitle($title);
         <?php if ($this->isAllowed('role', 'rights')): ?>
         <a href="<?php echo $this->url('role', array('action'=>'rights', 'id' => $role->id_role));?>">Oprávnění</a>
         <?php endif; ?>
-        <?php if ($this->isAllowed('role', 'delete') && $role->id_role != \System\Model\RoleTable::ID_ROLE_GUEST): ?>
+        <?php if ($this->isAllowed('role', 'delete') && $role->id_role != \System\Entity\RoleTable::ID_ROLE_GUEST): ?>
         <a href="<?php echo $this->url('role', array('action'=>'delete', 'id' => $role->id_role));?>">Smazat</a>
         <?php endif; ?>
     </td>

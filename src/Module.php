@@ -2,13 +2,8 @@
 
 namespace System;
 
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\TableGateway\TableGateway;
 use Zend\Log\Logger;
 use Zend\Log\Writer\Stream as LogWriterStream;
-use System\Model\UserTable;
-use System\Model\RoleTable;
-use System\Model\RightTable;
 
 class Module {
 
@@ -19,45 +14,10 @@ class Module {
   public function getServiceConfig() {
     return array(
       'factories' => array(
-        // db tables
-        'System\Model\UserTable' => function($sm) {
-          $gateway = $sm->get('UserTableGateway');
-          $table = new UserTable($gateway);
-          return $table;
-        },
-        'UserTableGateway' => function($sm) {
-          $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-          $resultSetPrototype = new ResultSet();
-          $resultSetPrototype->setArrayObjectPrototype(new \System\Model\User());
-          return new TableGateway('system_users', $dbAdapter, null, $resultSetPrototype);
-        },
-        'System\Model\RoleTable' => function($sm) {
-          $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-          $table = new RoleTable($dbAdapter);
-          return $table;
-        },
-        'System\Model\RightTable' => function($sm) {
-          $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-          $table = new RightTable($dbAdapter);
-          return $table;
-        },
-        'System\Model\UserRoleTable' => function($sm) {
-          $tableGateway = $sm->get('UserRoleTableGateway');
-          $table = new \System\Model\UserRoleTable($tableGateway);
-          return $table;
-        },
-        'UserRoleTableGateway' => function ($sm) {
-          $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-          $resultSetPrototype = new ResultSet();
-          $resultSetPrototype->setArrayObjectPrototype(new \System\Model\UserRole());
-          return new TableGateway('system_users_roles', $dbAdapter, null, $resultSetPrototype);
-        },
         'AuthentificationService' => function($sm) {
-          $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-          $dbTableAuthAdapter = new \Zend\Authentication\Adapter\DbTable($dbAdapter, 'system_users', 'email',
-                  'password', 'MD5(?)');
+          $authAdapter = $sm->get(\System\Service\AuthAdapter::class);
           $authService = new \Zend\Authentication\AuthenticationService();
-          $authService->setAdapter($dbTableAuthAdapter);
+          $authService->setAdapter($authAdapter);
           $authService->setStorage(new \Zend\Authentication\Storage\Session());
           return $authService;
         },
@@ -73,9 +33,10 @@ class Module {
           $cache = $sm->get('CacheAcl');
           if (!$cache->hasItem('acl')) {
             $acl = new \System\Acl();
-            $acl->setRoles($sm->get('System\Model\RoleTable'));
+            $entityManager = $sm->get('doctrine.entitymanager.orm_default');
+            $acl->setRoles($entityManager->getRepository(\System\Entity\Role::class)->findAll());
             $acl->setResources($sm->get('Config'));
-            $acl->setRights($sm->get('System\Model\RightTable'));
+            $acl->setRights($entityManager->getRepository(\System\Entity\Right::class)->findAll());
             $cache->addItem('acl', serialize($acl));
           } else {
             $acl = unserialize($cache->getItem('acl'));
@@ -88,7 +49,19 @@ class Module {
           $service = new \System\Service\Authorization($acl, $authenticationService);
           return $service;
         },
-        'System\Form\RightsForm' => 'System\Form\Factory\RightsFormFactory'
+        'System\Form\RightsForm' => 'System\Form\Factory\RightsFormFactory',
+        \System\Service\UserManager::class => function ($sm) {
+          $entityManager = $sm->get('doctrine.entitymanager.orm_default');
+          return new \System\Service\UserManager($entityManager);
+        },
+        \System\Service\RoleManager::class => function ($sm) {
+          $entityManager = $sm->get('doctrine.entitymanager.orm_default');
+          return new \System\Service\RoleManager($entityManager);
+        },
+        \System\Service\AuthAdapter::class => function ($sm) {
+          $entityManager = $sm->get('doctrine.entitymanager.orm_default');
+          return new \System\Service\AuthAdapter($entityManager);
+        }
       ),
     );
   }

@@ -3,38 +3,31 @@
 namespace System\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
+use DoctrineORMModule\Paginator\Adapter\DoctrinePaginator as DoctrineAdapter;
+use Doctrine\ORM\Tools\Pagination\Paginator as ORMPaginator;
 
 class User extends AbstractActionController {
 
   /**
-   * @var \System\Model\UserRoleTable
+   * @var \System\Service\UserManager
    */
-  private $userRoleTable;
+  private $userManager;
 
   /**
-   * @var \System\Model\RoleTable
+   * @var \Doctrine\ORM\EntityManager
    */
-  private $roleTable;
+  private $entityManager;
 
   /**
    * @var \Zend\Authentication\AuthenticationService
    */
   private $authService;
 
-  /**
-   * @var System\Model\UserTable
-   */
-  private $userTable;
-
-  public function __construct(\System\Model\UserTable $userTable, \Zend\Authentication\AuthenticationService $authService, \System\Model\RoleTable $roleTable, \System\Model\UserRoleTable $userRoleTable) {
-    $this->userTable = $userTable;
+  public function __construct(\Doctrine\ORM\EntityManager $entityManager, \System\Service\UserManager $userManager,
+                              \Zend\Authentication\AuthenticationService $authService) {
     $this->authService = $authService;
-    $this->roleTable = $roleTable;
-    $this->userRoleTable = $userRoleTable;
-  }
-
-  private function getUserTable() {
-    return $this->userTable;
+    $this->entityManager = $entityManager;
+    $this->userManager = $userManager;
   }
 
   private function getUserForm() {
@@ -43,36 +36,41 @@ class User extends AbstractActionController {
 
   public function indexAction() {
     $page = $this->params()->fromRoute('page');
+    $queryBuilder = $this->entityManager->getRepository(\System\Entity\User::class)->createQueryBuilder('u');
+
     $filterFormPrefix = 'userFilter';
     $form = new \System\Form\UserSearchForm($filterFormPrefix);
     $requestParams = $this->params()->fromQuery();
-    $userQuery = $this->getUserTable()->getGateway()->getSql()->select()->where;
 
     if (isset($requestParams[$filterFormPrefix]['name']) && $requestParams[$filterFormPrefix]['name'] != '') {
-      $userQuery->like('name', '%' . $requestParams[$filterFormPrefix]['name'] . '%');
+      $queryBuilder->where('u.name LIKE :name');
+      $queryBuilder->setParameter('name', '%' . $requestParams[$filterFormPrefix]['name'] . '%');
     }
 
     if (isset($requestParams[$filterFormPrefix]['surname']) && $requestParams[$filterFormPrefix]['surname'] != '') {
-      $userQuery->like('surname', '%' . $requestParams[$filterFormPrefix]['surname'] . '%');
+      $queryBuilder->where('u.surname LIKE :surname');
+      $queryBuilder->setParameter('surname', '%' . $requestParams[$filterFormPrefix]['surname'] . '%');
     }
 
     if (isset($requestParams[$filterFormPrefix]['email']) && $requestParams[$filterFormPrefix]['email'] != '') {
-      $userQuery->like('email', '%' . $requestParams[$filterFormPrefix]['email'] . '%');
+      $queryBuilder->where('u.email LIKE :email');
+      $queryBuilder->setParameter('email', '%' . $requestParams[$filterFormPrefix]['email'] . '%');
     }
-
-    $paginatorAdapter = new \Zend\Paginator\Adapter\DbTableGateway($this->getUserTable()->getGateway(), $userQuery);
-    $paginator = new \Zend\Paginator\Paginator($paginatorAdapter);
-    $paginator->setCurrentPageNumber($page);
-    $paginator->setDefaultItemCountPerPage(10);
 
     if (array_key_exists($filterFormPrefix, $requestParams)) {
       $form->populateValues($requestParams[$filterFormPrefix]);
     }
 
+    $adapter = new DoctrineAdapter(new ORMPaginator($queryBuilder->getQuery(), false));
+    $paginator = new \Zend\Paginator\Paginator($adapter);
+
+    $paginator->setDefaultItemCountPerPage(10);
+    $paginator->setCurrentPageNumber($page);
+
     return array(
-        'users' => $paginator,
-        'requestParams' => $requestParams,
-        'form' => $form
+      'users' => $paginator,
+      'requestParams' => $requestParams,
+      'form' => $form
     );
   }
 
@@ -85,22 +83,21 @@ class User extends AbstractActionController {
       if ($request->getPost('return')) {
         return $this->redirect()->toRoute('user');
       }
-      $user = new \System\Model\User();
+      $user = new \System\Entity\User();
       $form->bind($user);
-      $form->setInputFilter($user->getInputFilter());
       $form->setData($request->getPost());
 
       if ($form->isValid()) {
         try {
-          $this->getUserTable()->saveUser($user);
           $password = $form->get('password')->getValue();
-          $this->getUserTable()->setPassword($user->id_user, $password);
+          $user->setPassword($password);
+          $this->userManager->add($user);
           $this->flashMessenger()->addSuccessMessage('Uživatel přidán');
           return $this->redirect()->toRoute('user');
         } catch (\System\Exception\AlreadyExistsException $e) {
           $this->flashMessenger()->addErrorMessage('Uživatel s emailem "' . $user->email . '" již existuje');
           return $this->redirect()->toRoute('user', array(
-                      'action' => 'add'
+                    'action' => 'add'
           ));
         }
       }
@@ -114,10 +111,10 @@ class User extends AbstractActionController {
     $idUser = (int) $this->params()->fromRoute('id', 0);
     if (!$idUser) {
       return $this->redirect()->toRoute('user', array(
-                  'action' => 'add'
+                'action' => 'add'
       ));
     }
-    $user = $this->getUserTable()->getUser($idUser);
+    $user = $this->entityManager->getRepository(\System\Entity\User::class)->find($idUser);
 
     $form = $this->getUserForm();
     $form->bind($user);
@@ -129,30 +126,30 @@ class User extends AbstractActionController {
         $url = $this->url()->fromRoute('user', array('page' => $page));
         return $this->redirect()->toUrl($url . '?' . http_build_query($requestParams));
       }
-      $inputFilter = $user->getInputFilter();
+      $inputFilter = $form->getInputFilter();
       $inputFilter->get('password')->setRequired(false);
       if (!$request->getPost('password')) {
         $inputFilter->get('password2')->setRequired(false);
       }
-      $form->setInputFilter($inputFilter);
       $form->setData($request->getPost());
 
       if ($form->isValid()) {
         try {
-          $this->getUserTable()->saveUser($user);
+          $this->userManager->update($user);
           $password = $form->get('password')->getValue();
           if ($password != '') {
-            $this->getUserTable()->setPassword($user->id_user, $password);
+            $this->userManager->setPassword($user, $password);
           }
           $this->flashMessenger()->addSuccessMessage('Uživatel uložen');
           $url = $this->url()->fromRoute('user', array('page' => $page));
           return $this->redirect()->toUrl($url . '?' . http_build_query($requestParams));
         } catch (\System\Exception\AlreadyExistsException $e) {
           $this->flashMessenger()->addErrorMessage('Uživatel s emailem "' . $user->email . '" již existuje');
-          $url = $this->url()->fromRoute('user', array(
-              'action' => 'edit',
-              'id' => $idUser,
-              'page' => $page
+          $url = $this->url()->fromRoute('user',
+                  array(
+                    'action' => 'edit',
+                    'id' => $idUser,
+                    'page' => $page
           ));
           return $this->redirect()->toUrl($url . '?' . http_build_query($requestParams));
         }
@@ -160,10 +157,10 @@ class User extends AbstractActionController {
     }
 
     return array(
-        'id' => $idUser,
-        'form' => $form,
-        'page' => $page,
-        'requestParams' => $requestParams,
+      'id' => $idUser,
+      'form' => $form,
+      'page' => $page,
+      'requestParams' => $requestParams,
     );
   }
 
@@ -171,17 +168,16 @@ class User extends AbstractActionController {
     $page = $this->params()->fromRoute('page');
     $requestParams = $this->params()->fromQuery();
     $idUser = (int) $this->params()->fromRoute('id', 0);
-    if (!$idUser) {
+    $user = $this->entityManager->getRepository(\System\Entity\User::class)->find($idUser);
+    if (!$user) {
       return $this->redirect()->toRoute('user');
     }
 
     $request = $this->getRequest();
     if ($request->isPost()) {
       $del = $request->getPost('del', array());
-
       if (array_key_exists('yes', $del)) {
-        $id = (int) $request->getPost('id');
-        $this->getUserTable()->deleteUser($id);
+        $this->userManager->delete($user);
         $this->flashMessenger()->addSuccessMessage('Uživatel smazán');
       }
       $url = $this->url()->fromRoute('user', array('page' => $page));
@@ -189,9 +185,9 @@ class User extends AbstractActionController {
     }
 
     return array(
-        'user' => $this->getUserTable()->getUser($idUser),
-        'page' => $page,
-        'requestParams' => $requestParams,
+      'user' => $this->entityManager->getRepository(\System\Entity\User::class)->find($idUser),
+      'page' => $page,
+      'requestParams' => $requestParams,
     );
   }
 
@@ -200,7 +196,7 @@ class User extends AbstractActionController {
       throw new \Exception('uzivatel bez identity nemuze editovat svuj profil');
     }
     $identity = $this->authService->getIdentity();
-    $user = $this->getUserTable()->getUser($identity->id_user);
+    $user = $this->entityManager->getRepository(\System\Entity\User::class)->find($identity->id_user);
     $form = $this->getUserForm();
     $form->remove('is_admin');
     $form->remove('is_active');
@@ -209,34 +205,35 @@ class User extends AbstractActionController {
 
     $request = $this->getRequest();
     if ($request->isPost()) {
-      $inputFilter = $user->getInputFilter();
+      $inputFilter = $form->getInputFilter();
+      $inputFilter->get('is_admin')->setRequired(false);
+      $inputFilter->get('is_active')->setRequired(false);
       $inputFilter->get('password')->setRequired(false);
       if (!$request->getPost('password')) {
         $inputFilter->get('password2')->setRequired(false);
       }
-      $form->setInputFilter($inputFilter);
       $form->setData($request->getPost());
 
       if ($form->isValid()) {
         try {
-          $this->getUserTable()->saveUser($user);
+          $this->userManager->update($user);
           $password = $form->get('password')->getValue();
           if ($password != '') {
-            $this->getUserTable()->setPassword($user->id_user, $password);
+            $this->userManager->setPassword($user, $password);
           }
           $this->flashMessenger()->addSuccessMessage('Uloženo');
           return $this->redirect()->toRoute('user', array('action' => 'profile'));
         } catch (\System\Exception\AlreadyExistsException $e) {
           $this->flashMessenger()->addErrorMessage('Uživatel s emailem "' . $user->email . '" již existuje');
           return $this->redirect()->toRoute('user', array(
-                      'action' => 'profile',
+                    'action' => 'profile',
           ));
         }
       }
     }
 
     return array(
-        'form' => $form,
+      'form' => $form,
     );
   }
 
@@ -244,9 +241,13 @@ class User extends AbstractActionController {
     $page = $this->params()->fromRoute('page');
     $requestParams = $this->params()->fromQuery();
     $idUser = (int) $this->params()->fromRoute('id', 0);
+    $user = $this->entityManager->getRepository(\System\Entity\User::class)->find($idUser);
+    if (!\is_object($user)) {
+      throw new Exception('nelze nalezt uzivatele s id ' . $idUser);
+    }
     $form = new \System\Form\UserRoles('role');
-    $form->setRolesTypes($this->roleTable->fetchAll());
-    $form->setRolesIds($this->userRoleTable->getRolesIdsByUser($idUser));
+    $form->setRolesTypes($this->entityManager->getRepository(\System\Entity\Role::class)->findAll());
+    $form->setRoles($user->getRoles()->toArray());
     $request = $this->getRequest();
     if ($request->isPost()) {
       if ($request->getPost('return')) {
@@ -254,20 +255,20 @@ class User extends AbstractActionController {
         return $this->redirect()->toUrl($url . '?' . http_build_query($requestParams));
       }
       $dataFromForm = $request->getPost('roles', array());
-      $callback = function($var) {
-        return $var == '1';
-      };
-      $rolesIds = array_keys(array_filter($dataFromForm, $callback));
-      $userRoleTable->setUserRoles($idUser, $rolesIds);
+      $rolesIds = array_keys(array_filter($dataFromForm,
+                      function($var) {
+                return $var == '1';
+              }));
+      $this->userManager->assignRoles($user, $rolesIds);
       $this->flashMessenger()->addSuccessMessage('Uloženo');
       $url = $this->url()->fromRoute('user', array('page' => $page));
       return $this->redirect()->toUrl($url . '?' . http_build_query($requestParams));
     }
     return array(
-        'form' => $form,
-        'id' => $idUser,
-        'page' => $page,
-        'requestParams' => $requestParams,
+      'form' => $form,
+      'id' => $idUser,
+      'page' => $page,
+      'requestParams' => $requestParams,
     );
   }
 

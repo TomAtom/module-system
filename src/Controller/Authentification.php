@@ -6,25 +6,17 @@ use Zend\Mvc\Controller\AbstractActionController;
 
 class Authentification extends AbstractActionController {
 
-  /**
-   * @var \System\Model\UserTable
-   */
-  private $userTable;
-
-  /**
-   * @var \System\Model\UserRoleTable
-   */
-  private $userRoleTable;
+  private $userManager;
 
   /**
    * @var \Zend\Authentication\AuthenticationService
    */
   private $authenticationService;
 
-  public function __construct(\Zend\Authentication\AuthenticationService $authenticationService, \System\Model\UserRoleTable $userRoleTable, \System\Model\UserTable $userTable) {
+  public function __construct(\Zend\Authentication\AuthenticationService $authenticationService,
+                              \System\Service\UserManager $userManager) {
     $this->authenticationService = $authenticationService;
-    $this->userRoleTable = $userRoleTable;
-    $this->userTable = $userTable;
+    $this->userManager = $userManager;
   }
 
   public function getAuthService() {
@@ -48,23 +40,15 @@ class Authentification extends AbstractActionController {
   }
 
   private function processLogin(\Zend\Http\Request $request) {
-    $this->getAuthService()->getAdapter()
-            ->setIdentity($request->getPost('email'))
-            ->setCredential($request->getPost('password'));
+    $authService = $this->getAuthService();
+    $adapter = $authService->getAdapter();
+    $adapter->setEmail($request->getPost('email'));
+    $adapter->setPassword($request->getPost('password'));
     $result = $this->getAuthService()->authenticate();
     if ($result->isValid()) {
       $storage = $this->getAuthService()->getStorage();
-      $identity = $this->getAuthService()->getAdapter()->getResultRowObject(
-              array('id_user', 'name', 'surname', 'email', 'last_login', 'id_role', 'is_admin', 'is_active'), null
-      );
-      if (!$identity->is_active) {
-        $this->getAuthService()->clearIdentity();
-        $this->flashMessenger()->addInfoMessage('Uživatel nemá povoleno přihlášení.');
-        return $this->redirect('authentification');
-      }
-      $identity->rolesIds = $this->userRoleTable->getRolesIdsByUser($identity->id_user);
+      $identity = $this->getAuthService()->getAdapter()->getIdentityData();
       $storage->write($identity);
-      $this->setUserLoginDateTime($this->getAuthService()->getIdentity()->id_user);
       $this->flashMessenger()->addSuccessMessage('Uživatel byl přihlášen');
       $returnUri = $request->getPost('return');
       if ($returnUri != '') {
@@ -83,12 +67,6 @@ class Authentification extends AbstractActionController {
     return $this->redirect()->toRoute('authentification');
   }
 
-  private function setUserLoginDateTime($idUser) {
-    $user = $this->userTable->getUser($idUser);
-    $user->last_login = date('Y-m-d H:i:s');
-    $this->userTable->saveUser($user);
-  }
-  
   private function getLoginForm() {
     $form = new \System\Form\LoginForm();
     $returnUri = $this->params()->fromQuery('return');

@@ -32,7 +32,7 @@ class RightsForm extends Form {
     $this->add($element);
   }
 
-  public function setRights(\Iterator $rights) {
+  public function setRights(\Doctrine\ORM\PersistentCollection $rights) {
     foreach ($rights as $right) {
       $controllerContainer = $this->get('rights')->get($right->controller);
       if (is_object($controllerContainer) && $controllerContainer->has($right->action)) {

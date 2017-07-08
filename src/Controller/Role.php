@@ -7,14 +7,14 @@ use Zend\Mvc\Controller\AbstractActionController;
 class Role extends AbstractActionController {
 
   /**
-   * @var \System\Model\RightTable
+   * @var \System\Service\RoleManager
    */
-  private $rightTable;
+  private $roleManager;
 
   /**
-   * @var \System\Model\RoleTable
+   * @var \Doctrine\ORM\EntityManager
    */
-  private $roleTable;
+  private $entityManager;
 
   /**
    * @var \Zend\Cache\Storage\FlushableInterface
@@ -26,16 +26,17 @@ class Role extends AbstractActionController {
    */
   private $rightsForm;
 
-  public function __construct(\System\Model\RoleTable $roleTable, \System\Form\RightsForm $rightsForm, \Zend\Cache\Storage\FlushableInterface $aclCache, \System\Model\RightTable $rightTable) {
+  public function __construct(\Doctrine\ORM\EntityManager $entityManager, \System\Service\RoleManager $roleManager,
+                              \System\Form\RightsForm $rightsForm, \Zend\Cache\Storage\FlushableInterface $aclCache) {
     $this->rightsForm = $rightsForm;
     $this->aclCache = $aclCache;
-    $this->roleTable = $roleTable;
-    $this->rightTable = $rightTable;
+    $this->entityManager = $entityManager;
+    $this->roleManager = $roleManager;
   }
 
   public function indexAction() {
     return array(
-        'roles' => $this->roleTable->fetchAll(),
+      'roles' => $this->entityManager->getRepository(\System\Entity\Role::class)->findAll(),
     );
   }
 
@@ -48,20 +49,20 @@ class Role extends AbstractActionController {
       if ($request->getPost('return')) {
         return $this->redirect()->toRoute('role');
       }
-      $role = new \System\Model\Role();
-      $form->setInputFilter($role->getInputFilter());
+      $role = new \System\Entity\Role();
+      $form->bind($role);
+      $form->setInputFilter($form->getInputFilter());
       $form->setData($request->getPost());
 
       if ($form->isValid()) {
         try {
-          $role->exchangeArray($form->getData());
-          $this->roleTable->saveRole($role);
+          $this->roleManager->add($role);
           $this->flashMessenger()->addSuccessMessage('Role přidána');
           return $this->redirect()->toRoute('role');
         } catch (\System\Exception\AlreadyExistsException $e) {
           $this->flashMessenger()->addErrorMessage('Role s názvem "' . $role->name . '" již existuje');
           return $this->redirect()->toRoute('role', array(
-                      'action' => 'add'
+                    'action' => 'add'
           ));
         }
       }
@@ -73,10 +74,10 @@ class Role extends AbstractActionController {
     $id = (int) $this->params()->fromRoute('id', 0);
     if (!$id) {
       return $this->redirect()->toRoute('role', array(
-                  'action' => 'add'
+                'action' => 'add'
       ));
     }
-    $role = $this->roleTable->getRole($id);
+    $role = $this->entityManager->getRepository(\System\Entity\Role::class)->find($id);
 
     $form = new \System\Form\RoleForm();
     $form->bind($role);
@@ -87,28 +88,29 @@ class Role extends AbstractActionController {
       if ($request->getPost('return')) {
         return $this->redirect()->toRoute('role');
       }
-      $inputFilter = $role->getInputFilter();
+      $inputFilter = $form->getInputFilter();
       $form->setInputFilter($inputFilter);
       $form->setData($request->getPost());
 
       if ($form->isValid()) {
         try {
-          $this->roleTable->saveRole($form->getData());
+          $this->roleManager->update($role);
           $this->flashMessenger()->addSuccessMessage('Role uložena');
           return $this->redirect()->toRoute('role');
         } catch (\System\Exception\AlreadyExistsException $e) {
           $this->flashMessenger()->addErrorMessage('Role s názvem "' . $role->name . '" již existuje');
-          return $this->redirect()->toRoute('role', array(
-                      'action' => 'edit',
-                      'id' => $id
+          return $this->redirect()->toRoute('role',
+                          array(
+                            'action' => 'edit',
+                            'id' => $id
           ));
         }
       }
     }
 
     return array(
-        'id' => $id,
-        'form' => $form,
+      'id' => $id,
+      'form' => $form,
     );
   }
 
@@ -131,40 +133,28 @@ class Role extends AbstractActionController {
     }
 
     return array(
-        'role' => $this->roleTable->getRole($idRole)
+      'role' => $this->roleTable->getRole($idRole)
     );
   }
 
   public function rightsAction() {
     $idRole = (int) $this->params()->fromRoute('id', 0);
-    $this->rightsForm->setRights($this->rightTable->getRightsByRole($idRole));
+    $role = $this->entityManager->getRepository(\System\Entity\Role::class)->find($idRole);
+    $this->rightsForm->setRights($role->getRights());
     $request = $this->getRequest();
     if ($request->isPost()) {
       if ($request->getPost('return')) {
         return $this->redirect()->toRoute('role');
       }
-      $this->rightTable->getAdapter()->getDriver()->getConnection()->beginTransaction();
-      $this->rightTable->deleteRightsByRole($idRole);
       $rights = $request->getPost('rights', array());
-      foreach ($rights as $controller => $actions) {
-        foreach ($actions as $action => $actionChecked) {
-          if ($actionChecked) {
-            $right = new \System\Model\Right();
-            $right->exchangeArray(array('id_role' => $idRole,
-                'controller' => $controller,
-                'action' => $action));
-            $this->rightTable->addRight($right);
-          }
-        }
-      }
-      $this->rightTable->getAdapter()->getDriver()->getConnection()->commit();
+      $this->roleManager->updateRights($role, $rights);
       $this->aclCache->flush();
       $this->flashMessenger()->addSuccessMessage('Uloženo');
       return $this->redirect()->toRoute('role');
     }
     return array(
-        'id' => $idRole,
-        'form' => $this->rightsForm
+      'id' => $idRole,
+      'form' => $this->rightsForm
     );
   }
 
