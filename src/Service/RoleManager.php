@@ -39,7 +39,11 @@ class RoleManager {
   }
 
   public function updateRights(\System\Entity\Role $role, array $data) {
-    $role->getRights()->clear();
+    $this->entityManager->getConnection()->beginTransaction();
+    foreach ($role->getRights() as $right) {
+      $this->entityManager->remove($right);
+    }
+    $this->entityManager->flush();
     foreach ($data as $controller => $actions) {
       foreach ($actions as $action => $actionChecked) {
         if ($actionChecked) {
@@ -52,6 +56,7 @@ class RoleManager {
       }
     }
     $this->entityManager->flush();
+    $this->entityManager->getConnection()->commit();
   }
 
 }

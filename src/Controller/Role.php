@@ -119,6 +119,7 @@ class Role extends AbstractActionController {
     if (!$idRole) {
       return $this->redirect()->toRoute('role');
     }
+    $role = $this->entityManager->getRepository(\System\Entity\Role::class)->find($idRole);
 
     $request = $this->getRequest();
     if ($request->isPost()) {
@@ -126,14 +127,14 @@ class Role extends AbstractActionController {
 
       if (array_key_exists('yes', $del)) {
         $id = (int) $request->getPost('id');
-        $this->roleTable->deleteRole($id);
+        $this->roleManager->delete($role);
         $this->flashMessenger()->addSuccessMessage('Role smazána');
       }
       return $this->redirect()->toRoute('role');
     }
 
     return array(
-      'role' => $this->roleTable->getRole($idRole)
+      'role' => $role
     );
   }
 
