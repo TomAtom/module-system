@@ -5,7 +5,7 @@ namespace SystemTest\Model;
 class UserTest extends \PHPUnit\Framework\TestCase {
 
   public function testExchangeArraySetsPropertiesCorrectly() {
-    $user = new \System\Model\User();
+    $user = new \System\Entity\User();
     $data = array('id_user' => 1,
         'name' => 'name',
         'surname' => 'surname',
@@ -23,7 +23,7 @@ class UserTest extends \PHPUnit\Framework\TestCase {
   }
 
   public function testExchangeArraySetsPropertiesToNullIfKeysAreNotPresent() {
-    $user = new \System\Model\User();
+    $user = new \System\Entity\User();
     $data = array('id_user' => 1,
         'name' => 'name',
         'surname' => 'surname',

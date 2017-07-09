@@ -17,6 +17,8 @@ return array(
     'Zend\Validator',
     'Application',
     'System',
+    'DoctrineModule',
+    'DoctrineORMModule',
   ),
   'module_listener_options' => array(
     'config_glob_paths' => array(
