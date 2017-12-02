@@ -3,9 +3,8 @@
 namespace System;
 
 interface iObjectWithAuthorization {
-  
-  public function canBeViewedByUser($identity = null);
-  
-  public function canBeChangedByUser($identity = null );
-  
+
+  public function canBeViewedByUser(?\System\Identity $identity): bool;
+
+  public function canBeChangedByUser(?\System\Identity $identity): bool;
 }
