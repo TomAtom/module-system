@@ -64,7 +64,7 @@ class Authorization {
     if ($this->authentificationService->hasIdentity()) {
       return $object->canBeViewedByUser($this->authentificationService->getIdentity());
     } else {
-      return $object->canBeViewedByUser();
+      return $object->canBeViewedByUser(null);
     }
   }
 
@@ -72,7 +72,7 @@ class Authorization {
     if ($this->authentificationService->hasIdentity()) {
       return $object->canBeChangedByUser($this->authentificationService->getIdentity());
     } else {
-      return $object->canBeChangedByUser();
+      return $object->canBeChangedByUser(null);
     }
   }
 
