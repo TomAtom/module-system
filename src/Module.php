@@ -6,6 +6,8 @@ use Zend\Log\Logger;
 use Zend\Log\Writer\Stream as LogWriterStream;
 
 class Module {
+  
+  const VERSION = '3.0.0';
 
   public function getConfig() {
     return include __DIR__ . '/../config/module.config.php';
@@ -21,15 +23,15 @@ class Module {
           $authService->setStorage(new \Zend\Authentication\Storage\Session());
           return $authService;
         },
-        'System\Service\ErrorHandling' => function($sm) {
+        \System\Service\ErrorHandling::class => function($sm) {
           $filename = 'exceptions_' . date('Y') . '_' . date('m') . '.log';
           $logger = new Logger();
           $writer = new LogWriterStream('./data/logs/' . $filename);
           $logger->addWriter($writer);
-          $service = new Service\ErrorHandling($logger);
+          $service = new \System\Service\ErrorHandling($logger);
           return $service;
         },
-        'System\Acl' => function($sm) {
+        \System\Acl::class => function($sm) {
           $cache = $sm->get('CacheAcl');
           if (!$cache->hasItem('acl')) {
             $acl = new \System\Acl();
@@ -43,13 +45,13 @@ class Module {
           }
           return $acl;
         },
-        'AuthorizationService' => function($sm) {
-          $acl = $sm->get('System\Acl');
+        \System\Service\Authorization::class => function($sm) {
+          $acl = $sm->get(\System\Acl::class);
           $authenticationService = $sm->get('AuthentificationService');
           $service = new \System\Service\Authorization($acl, $authenticationService);
           return $service;
         },
-        'System\Form\RightsForm' => 'System\Form\Factory\RightsFormFactory',
+        \System\Form\RightsForm::class => \System\Form\Factory\RightsFormFactory::class,
         \System\Service\UserManager::class => function ($sm) {
           $entityManager = $sm->get('doctrine.entitymanager.orm_default');
           return new \System\Service\UserManager($entityManager);
@@ -74,7 +76,7 @@ class Module {
         },
         'isAllowed' => function($container) {
           $config = $container->get('Config');
-          $authorizationService = $container->get('AuthorizationService');
+          $authorizationService = $container->get(\System\Service\Authorization::class);
           return new View\Helper\IsAllowed($authorizationService, $config['router']['routes']);
         },
         'absoluteUrl' => function($container) {
@@ -85,11 +87,11 @@ class Module {
           return new \System\View\Helper\FlashMessages($flashMessenger);
         },
         'canView' => function($container) {
-          $authorizationService = $container->get('AuthorizationService');
+          $authorizationService = $container->get(\System\Service\Authorization::class);
           return new View\Helper\CanView($authorizationService);
         },
         'canChange' => function($container) {
-          $authorizationService = $container->get('AuthorizationService');
+          $authorizationService = $container->get(\System\Service\Authorization::class);
           return new View\Helper\CanChange($authorizationService);
         },
       ),
@@ -102,7 +104,7 @@ class Module {
     $eventManager = $application->getEventManager();
     $eventManager->attach(\Zend\Mvc\MvcEvent::EVENT_DISPATCH,
             function($e) use ($sm) {
-      $sm->get('AuthorizationService')
+      $sm->get(\System\Service\Authorization::class)
               ->doAuthorization($e);
     }, 100);
 
@@ -111,7 +113,7 @@ class Module {
       $exception = $event->getResult()->exception;
       if ($exception) {
         $sm = $event->getApplication()->getServiceManager();
-        $service = $sm->get('System\Service\ErrorHandling');
+        $service = $sm->get(\System\Service\ErrorHandling::class);
         $service->logException($exception);
       }
     });
