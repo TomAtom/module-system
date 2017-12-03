@@ -5,30 +5,12 @@ namespace System\Service;
 class UserManager {
 
   /**
-   * Doctrine entity manager.
    * @var Doctrine\ORM\EntityManager
    */
   private $entityManager;
 
-  /**
-   * Role manager.
-   * @var User\Service\RoleManager
-   */
-  private $roleManager;
-
-  /**
-   * Permission manager.
-   * @var User\Service\PermissionManager
-   */
-  private $permissionManager;
-
-  /**
-   * Constructs the service.
-   */
   public function __construct(\Doctrine\ORM\EntityManager $entityManager) {
     $this->entityManager = $entityManager;
-//        $this->roleManager = $roleManager;
-//        $this->permissionManager = $permissionManager;
   }
 
   public function add(\System\Entity\User $user) {
