@@ -6,20 +6,9 @@ class UserControllerTest extends \Zend\Test\PHPUnit\Controller\AbstractHttpContr
   
   use \SystemTest\Controller\LoginMocker;
 
-  protected $controller;
-  protected $request;
-  protected $response;
-  protected $routeMatch;
-  protected $event;
-
   public function setUp() {
-    // The module configuration should still be applicable for tests.
-    // You can override configuration here with test case specific values,
-    // such as sample view templates, path stacks, module_listener_options,
-    // etc.
     $configOverrides = [];
     $this->setApplicationConfig(\Zend\Stdlib\ArrayUtils::merge(
-                    // Grabbing the full application configuration:
                     include __DIR__ . '/../../TestConfig.php.dist', $configOverrides
     ));
     parent::setUp();
