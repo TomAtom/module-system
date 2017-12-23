@@ -6,7 +6,7 @@ class RightsFormFactory implements \Zend\ServiceManager\Factory\FactoryInterface
 
   public function __invoke(\Interop\Container\ContainerInterface $container, $requestedName, array $options = null) {
     $form = new \System\Form\RightsForm();
-    $form->setControllers($this->getControllers());
+    $form->setControllers($this->getControllers($container));
     return $form;
   }
 
