@@ -77,7 +77,7 @@ class User implements \Zend\Stdlib\ArraySerializableInterface {
     return $this->id_user;
   }
 
-  public function setName(string $name) {
+  public function setName(string $name) : void {
     $this->name = $name;
   }
 
@@ -85,7 +85,7 @@ class User implements \Zend\Stdlib\ArraySerializableInterface {
     return $this->name;
   }
 
-  public function setSurname(string $surname) {
+  public function setSurname(string $surname) : void {
     $this->surname = $surname;
   }
 
@@ -93,7 +93,7 @@ class User implements \Zend\Stdlib\ArraySerializableInterface {
     return $this->surname;
   }
 
-  public function setEmail(string $email) {
+  public function setEmail(string $email) : void {
     $this->email = $email;
   }
 
@@ -101,7 +101,7 @@ class User implements \Zend\Stdlib\ArraySerializableInterface {
     return $this->email;
   }
 
-  public function setPassword(string $password) {
+  public function setPassword(string $password) : void {
     $this->password = $password;
   }
 
@@ -109,7 +109,7 @@ class User implements \Zend\Stdlib\ArraySerializableInterface {
     return $this->password;
   }
 
-  public function setLastLogin(\DateTime $lastLogin) {
+  public function setLastLogin(\DateTime $lastLogin) : void {
     $this->last_login = $lastLogin;
   }
 
@@ -117,7 +117,7 @@ class User implements \Zend\Stdlib\ArraySerializableInterface {
     return $this->last_login;
   }
 
-  public function setIsAdmin(bool $isAdmin) {
+  public function setIsAdmin(bool $isAdmin) : void {
     $this->is_admin = $isAdmin;
   }
 
@@ -125,7 +125,7 @@ class User implements \Zend\Stdlib\ArraySerializableInterface {
     return $this->is_admin;
   }
 
-  public function setIsActive(bool $isActive) {
+  public function setIsActive(bool $isActive) : void {
     $this->is_active = $isActive;
   }
 
@@ -133,7 +133,7 @@ class User implements \Zend\Stdlib\ArraySerializableInterface {
     return $this->is_active;
   }
 
-  public function setDatetimeCreate(\DateTime $datetimeCreate) {
+  public function setDatetimeCreate(\DateTime $datetimeCreate) : void {
     $this->datetime_create = $datetimeCreate;
   }
 
@@ -141,11 +141,11 @@ class User implements \Zend\Stdlib\ArraySerializableInterface {
     return $this->datetime_create;
   }
 
-  public function addRole(\System\Entity\Role $role) {
+  public function addRole(\System\Entity\Role $role) : void {
     $this->roles[] = $role;
   }
 
-  public function removeRole(\System\Entity\Role $role) {
+  public function removeRole(\System\Entity\Role $role) : void {
     $this->roles->removeElement($role);
   }
 

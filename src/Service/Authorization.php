@@ -21,7 +21,7 @@ class Authorization {
     $this->authentificationService = $authentificationService;
   }
 
-  public function doAuthorization(\Zend\Mvc\MvcEvent $e) {
+  public function doAuthorization(\Zend\Mvc\MvcEvent $e) : void {
     if ($this->isControlerUnderAuthorizationControl($e->getRouteMatch()->getParam('controller'))) {
       if (!$this->isCurrentUserAllowed($e->getRouteMatch()->getParam('controller'),
                       $e->getRouteMatch()->getParam('action'))) {
@@ -45,7 +45,7 @@ class Authorization {
     }
   }
 
-  public function isCurrentUserAllowed($controller, $action) {
+  public function isCurrentUserAllowed($controller, $action) : bool {
     if ($this->authentificationService->hasIdentity()) {
       $identity = $this->authentificationService->getIdentity();
       $isAllowed = false;
@@ -60,7 +60,7 @@ class Authorization {
     }
   }
 
-  public function canCurrentUserViewObject(\System\iObjectWithAuthorization $object) {
+  public function canCurrentUserViewObject(\System\iObjectWithAuthorization $object) : bool {
     if ($this->authentificationService->hasIdentity()) {
       return $object->canBeViewedByUser($this->authentificationService->getIdentity());
     } else {
@@ -68,7 +68,7 @@ class Authorization {
     }
   }
 
-  public function canCurrentUserChangeObject(\System\iObjectWithAuthorization $object) {
+  public function canCurrentUserChangeObject(\System\iObjectWithAuthorization $object) : bool {
     if ($this->authentificationService->hasIdentity()) {
       return $object->canBeChangedByUser($this->authentificationService->getIdentity());
     } else {
@@ -76,7 +76,7 @@ class Authorization {
     }
   }
 
-  protected function existsControllerAction(\Zend\Mvc\MvcEvent $e) {
+  protected function existsControllerAction(\Zend\Mvc\MvcEvent $e) : bool {
     $sm = $e->getApplication()->getServiceManager();
     $return = false;
     $config = $sm->get('Config');

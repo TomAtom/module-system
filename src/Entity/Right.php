@@ -29,7 +29,7 @@ class Right {
    */
   private $role;
 
-  public function setController(string $controller) {
+  public function setController(string $controller) : void {
     $this->controller = $controller;
   }
 
@@ -37,7 +37,7 @@ class Right {
     return $this->controller;
   }
 
-  public function setAction(string $action) {
+  public function setAction(string $action) : void {
     $this->action = $action;
   }
 
@@ -45,7 +45,7 @@ class Right {
     return $this->action;
   }
 
-  public function setRole(\System\Entity\Role $role) {
+  public function setRole(\System\Entity\Role $role) : void {
     $this->role = $role;
   }
 

@@ -7,13 +7,13 @@ use Zend\Permissions\Acl\Resource\GenericResource as Resource;
 
 class Acl extends \Zend\Permissions\Acl\Acl {
 
-  public function setRoles(array $roles) {
+  public function setRoles(array $roles) : void {
     foreach ($roles as $role) {
       $this->addRole(new Role($role->id_role));
     }
   }
 
-  public function setResources($config) {
+  public function setResources(array $config) : void {
     if (\array_key_exists('invokables', $config['controllers'])) {
       foreach ($config['controllers']['invokables'] as $controllerAlias => $controllerClass) {
         $this->addResource(new Resource($controllerAlias));
@@ -24,7 +24,7 @@ class Acl extends \Zend\Permissions\Acl\Acl {
     }
   }
 
-  public function setRights(array $rights) {
+  public function setRights(array $rights) : void {
     foreach ($rights as $right) {
       if ($this->hasResource($right->controller)) {
         $role = $right->getRole();

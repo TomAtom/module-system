@@ -21,15 +21,15 @@ class AuthAdapter implements AdapterInterface {
     $this->entityManager = $entityManager;
   }
 
-  public function setEmail(string $email) {
+  public function setEmail(string $email): void {
     $this->email = $email;
   }
 
-  public function setPassword(string $password) {
+  public function setPassword(string $password): void {
     $this->password = (string) $password;
   }
 
-  public function authenticate() {
+  public function authenticate(): Result {
     $this->user = $this->entityManager->getRepository(User::class)
             ->findOneByEmail($this->email);
     if ($this->user == null) {

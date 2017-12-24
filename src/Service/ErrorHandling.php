@@ -6,11 +6,11 @@ class ErrorHandling {
 
   protected $logger;
 
-  function __construct($logger) {
+  function __construct(\Zend\Log\LoggerInterface $logger) {
     $this->logger = $logger;
   }
 
-  function logException(\Throwable $e) {
+  function logException(\Throwable $e) : void {
     $trace = $e->getTraceAsString();
     $i = 1;
     do {

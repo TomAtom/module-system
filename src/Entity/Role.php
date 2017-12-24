@@ -42,7 +42,7 @@ class Role implements \Zend\Stdlib\ArraySerializableInterface {
     return $this->id_role;
   }
 
-  public function setName(string $name) {
+  public function setName(string $name) : void {
     $this->name = $name;
   }
 
@@ -50,11 +50,11 @@ class Role implements \Zend\Stdlib\ArraySerializableInterface {
     return $this->name;
   }
 
-  public function addRight(\System\Entity\Right $right) {
+  public function addRight(\System\Entity\Right $right) : void {
     $this->rights[] = $right;
   }
 
-  public function removeRight(\System\Entity\Right $right) {
+  public function removeRight(\System\Entity\Right $right) : void {
     $this->rights->removeElement($right);
   }
 
@@ -62,11 +62,11 @@ class Role implements \Zend\Stdlib\ArraySerializableInterface {
     return $this->rights;
   }
 
-  public function addUser(\System\Entity\User $user) {
+  public function addUser(\System\Entity\User $user) : void {
     $this->users[] = $user;
   }
 
-  public function removeUser(\System\Entity\User $user) {
+  public function removeUser(\System\Entity\User $user) : void {
     $this->users->removeElement($user);
   }
 

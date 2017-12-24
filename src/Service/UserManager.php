@@ -13,7 +13,7 @@ class UserManager {
     $this->entityManager = $entityManager;
   }
 
-  public function add(\System\Entity\User $user) {
+  public function add(\System\Entity\User $user) : void {
     $userByEmail = $this->entityManager->getRepository(\System\Entity\User::class)->findOneByEmail($user->getEmail());
     if (is_object($userByEmail) && $userByEmail->getIdUser() != $user->getIdUser()) {
       throw new \System\Exception\AlreadyExistsException("Another user with email address " . $user->getEmail() . " already exists");
@@ -24,7 +24,7 @@ class UserManager {
     $this->entityManager->flush();
   }
 
-  public function update(\System\Entity\User $user) {
+  public function update(\System\Entity\User $user) : void  {
     $userByEmail = $this->entityManager->getRepository(\System\Entity\User::class)->findOneByEmail($user->getEmail());
     if (is_object($userByEmail) && $userByEmail->getIdUser() != $user->getIdUser()) {
       throw new \System\Exception\AlreadyExistsException("Another user with email address " . $user->getEmail() . " already exists");
@@ -32,17 +32,17 @@ class UserManager {
     $this->entityManager->flush();
   }
 
-  public function delete(\System\Entity\User $user) {
+  public function delete(\System\Entity\User $user) : void  {
     $this->entityManager->remove($user);
     $this->entityManager->flush();
   }
 
-  public function setPassword(\System\Entity\User $user, $password) {
+  public function setPassword(\System\Entity\User $user, string $password) : void {
     $user->setPassword(\md5($password));
     $this->entityManager->flush();
   }
 
-  public function assignRoles(\System\Entity\User $user, $roleIds) {
+  public function assignRoles(\System\Entity\User $user, array $roleIds) : void {
     $user->getRoles()->clear();
     foreach ($roleIds as $roleId) {
       $role = $this->entityManager->getRepository(\System\Entity\Role::class)->find($roleId);

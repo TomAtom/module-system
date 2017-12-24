@@ -3,7 +3,7 @@
 namespace System\Service;
 
 class RoleManager {
-  
+
   const ID_ROLE_GUEST = 1;
 
   /**
@@ -15,30 +15,30 @@ class RoleManager {
     $this->entityManager = $entityManager;
   }
 
-  public function add(\System\Entity\Role $role) {
+  public function add(\System\Entity\Role $role): void {
     $this->checkIfExist($role);
     $this->entityManager->persist($role);
     $this->entityManager->flush();
   }
 
-  public function update(\System\Entity\Role $role) {
+  public function update(\System\Entity\Role $role): void {
     $this->checkIfExist($role);
     $this->entityManager->flush();
   }
 
-  private function checkIfExist(\System\Entity\Role $role) {
+  private function checkIfExist(\System\Entity\Role $role): void {
     $roleByName = $this->entityManager->getRepository(\System\Entity\Role::class)->findOneByName($role->getName());
     if (is_object($roleByName) && $roleByName->getIdRole() != $role->getIdRole()) {
       throw new \System\Exception\AlreadyExistsException("Another role with name " . $role->getName() . " already exists");
     }
   }
 
-  public function delete(\System\Entity\Role $role) {
+  public function delete(\System\Entity\Role $role): void {
     $this->entityManager->remove($role);
     $this->entityManager->flush();
   }
 
-  public function updateRights(\System\Entity\Role $role, array $data) {
+  public function updateRights(\System\Entity\Role $role, array $data): void {
     $this->entityManager->getConnection()->beginTransaction();
     foreach ($role->getRights() as $right) {
       $this->entityManager->remove($right);
