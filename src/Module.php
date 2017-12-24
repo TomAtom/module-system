@@ -48,8 +48,8 @@ class Module {
         \System\Service\Authorization::class => function($sm) {
           $acl = $sm->get(\System\Acl::class);
           $authenticationService = $sm->get('AuthentificationService');
-          $service = new \System\Service\Authorization($acl, $authenticationService);
-          return $service;
+          $config = $sm->get('Config');
+          return new \System\Service\Authorization($acl, $authenticationService, $config);
         },
         \System\Form\RightsForm::class => \System\Form\Factory\RightsFormFactory::class,
         \System\Service\UserManager::class => function ($sm) {

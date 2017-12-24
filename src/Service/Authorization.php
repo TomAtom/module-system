@@ -4,6 +4,8 @@ namespace System\Service;
 
 class Authorization {
 
+  private $config;
+
   const MODULES = [
     'Application',
     'System',
@@ -16,9 +18,10 @@ class Authorization {
   protected $authentificationService;
   protected $acl;
 
-  public function __construct(\System\Acl $acl, \Zend\Authentication\AuthenticationService $authentificationService) {
+  public function __construct(\System\Acl $acl, \Zend\Authentication\AuthenticationService $authentificationService, array $config) {
     $this->acl = $acl;
     $this->authentificationService = $authentificationService;
+    $this->config = $config;
   }
 
   public function doAuthorization(\Zend\Mvc\MvcEvent $e) : void {
@@ -77,16 +80,14 @@ class Authorization {
   }
 
   protected function existsControllerAction(\Zend\Mvc\MvcEvent $e) : bool {
-    $sm = $e->getApplication()->getServiceManager();
     $return = false;
-    $config = $sm->get('Config');
-    if (array_key_exists($e->getRouteMatch()->getParam('controller'), $config['controllers']['invokables'])) {
-      $classMethods = get_class_methods($config['controllers']['invokables'][$e->getRouteMatch()->getParam('controller')]);
+    if (array_key_exists($e->getRouteMatch()->getParam('controller'), $this->config['controllers']['invokables'])) {
+      $classMethods = get_class_methods($this->config['controllers']['invokables'][$e->getRouteMatch()->getParam('controller')]);
       if (in_array($e->getRouteMatch()->getParam('action') . 'Action', $classMethods)) {
         $return = true;
       }
     }
-    if (array_key_exists($e->getRouteMatch()->getParam('controller'), $config['controllers']['factories'])) {
+    if (array_key_exists($e->getRouteMatch()->getParam('controller'), $this->config['controllers']['factories'])) {
       $classMethods = get_class_methods($e->getRouteMatch()->getParam('controller'));
       if (in_array($e->getRouteMatch()->getParam('action') . 'Action', $classMethods)) {
         $return = true;
